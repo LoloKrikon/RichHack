@@ -511,7 +511,33 @@
         <p>RichHack - Desarrollado para concientización en Ciberseguridad.</p>
     </footer>
 
+    <!-- Immediate Inline UI Tab Switcher (Works 100% offline & without CDN dependencies) -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("click", function(e) {
+          var tabBtn = e.target.closest(".tab-btn");
+          if (tabBtn) {
+            e.preventDefault();
+            document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
+            tabBtn.classList.add("active");
+
+            var targetTab = tabBtn.getAttribute("data-tab");
+            var lf = document.getElementById("login-form");
+            var rf = document.getElementById("register-form");
+            var gf = document.getElementById("guest-form");
+
+            if (lf) lf.classList.add("hidden");
+            if (rf) rf.classList.add("hidden");
+            if (gf) gf.classList.add("hidden");
+
+            if (targetTab === "login" && lf) lf.classList.remove("hidden");
+            if (targetTab === "register" && rf) rf.classList.remove("hidden");
+            if (targetTab === "guest" && gf) gf.classList.remove("hidden");
+          }
+        });
+      });
+    </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_delegated"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_inline"></script>
 </body>
 </html>

@@ -2,6 +2,13 @@ window.addEventListener('error', (e) => {
     console.error("[RichHack Error]", e.message);
 });
 
+window.addEventListener('unhandledrejection', (e) => {
+    console.error("[RichHack Unhandled Rejection]", e.reason);
+    if (e.reason && e.reason.message && !e.reason.message.includes("popup-closed")) {
+        alert("Aviso de Firebase: " + e.reason.message);
+    }
+});
+
 // Import SDK modules from official Firebase CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
