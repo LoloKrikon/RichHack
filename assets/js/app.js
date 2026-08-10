@@ -784,63 +784,75 @@ if (btnLogout) {
 
 // UI setup when logged in
 function setupDashboardUI(user) {
-    if (authContainer) authContainer.classList.add("hidden");
-    if (appContainer) appContainer.classList.remove("hidden");
+    const ac = document.getElementById("auth-container");
+    const ap = document.getElementById("app-container");
+    const uName = document.getElementById("user-display-name");
+    const uBadge = document.getElementById("user-status-badge");
+
+    if (ac) ac.classList.add("hidden");
+    if (ap) ap.classList.remove("hidden");
 
     if (user.isAnonymous) {
-        if (userDisplayName) userDisplayName.textContent = "Invitado Anónimo";
-        if (userStatusBadge) {
-            userStatusBadge.textContent = "Acceso Limitado";
-            userStatusBadge.style.color = "var(--accent-yellow)";
+        if (uName) uName.textContent = "Invitado Anónimo";
+        if (uBadge) {
+            uBadge.textContent = "Acceso Limitado";
+            uBadge.style.color = "var(--accent-yellow)";
         }
     } else {
-        if (userDisplayName) userDisplayName.textContent = user.displayName || user.email;
-        if (userStatusBadge) {
-            userStatusBadge.textContent = user.providerData[0]?.providerId === "google.com" ? "Google Account" : "Usuario Registrado";
-            userStatusBadge.style.color = "var(--accent-color)";
+        if (uName) uName.textContent = user.displayName || user.email;
+        if (uBadge) {
+            uBadge.textContent = user.providerData[0]?.providerId === "google.com" ? "Google Account" : "Usuario Registrado";
+            uBadge.style.color = "var(--accent-color)";
         }
     }
 }
 
 // UI setup when logged out
 function setupAuthUI() {
-    if (appContainer) appContainer.classList.add("hidden");
-    if (authContainer) authContainer.classList.remove("hidden");
+    const ac = document.getElementById("auth-container");
+    const ap = document.getElementById("app-container");
+    if (ap) ap.classList.add("hidden");
+    if (ac) ac.classList.remove("hidden");
 }
 
 // Firestore: Start listening to Community Alerts
 function startListeningAlerts() {
     if (unsubscribeAlerts) unsubscribeAlerts();
 
-    if (loadingIndicator) loadingIndicator.style.display = "flex";
-    if (emptyState) emptyState.classList.add("hidden");
-    if (recordsList) recordsList.innerHTML = "";
+    const loadInd = document.getElementById("loading-indicator");
+    const empSt = document.getElementById("empty-state");
+    const recList = document.getElementById("records-list");
+    const dCount = document.getElementById("data-counter");
+
+    if (loadInd) loadInd.style.display = "flex";
+    if (empSt) empSt.classList.add("hidden");
+    if (recList) recList.innerHTML = "";
 
     try {
         const alertsCollection = collection(db, "alertas_seguridad");
         const q = query(alertsCollection, orderBy("timestamp", "desc"), limit(20));
 
         unsubscribeAlerts = onSnapshot(q, (snapshot) => {
-            if (loadingIndicator) loadingIndicator.style.display = "none";
-            if (recordsList) recordsList.innerHTML = "";
+            if (loadInd) loadInd.style.display = "none";
+            if (recList) recList.innerHTML = "";
             
             const count = snapshot.size;
-            if (dataCounter) dataCounter.textContent = count;
+            if (dCount) dCount.textContent = count;
 
             if (count === 0) {
-                if (emptyState) emptyState.classList.remove("hidden");
+                if (empSt) empSt.classList.remove("hidden");
                 return;
             }
 
-            if (emptyState) emptyState.classList.add("hidden");
+            if (empSt) empSt.classList.add("hidden");
             snapshot.forEach(docSnap => {
                 renderAlertItem(docSnap.id, docSnap.data());
             });
         }, (error) => {
             console.error("Error leyendo Firestore alertas:", error);
-            if (loadingIndicator) loadingIndicator.style.display = "none";
-            if (error.code === "permission-denied" && recordsList) {
-                recordsList.innerHTML = `
+            if (loadInd) loadInd.style.display = "none";
+            if (error.code === "permission-denied" && recList) {
+                recList.innerHTML = `
                     <div style="color: #ff8a00; padding: 1.5rem; text-align: center; font-size: 0.9rem;">
                         <i class="fa-solid fa-lock" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
                         <p><strong>Permisos Restringidos</strong></p>
