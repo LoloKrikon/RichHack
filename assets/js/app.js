@@ -47,71 +47,21 @@ let auth;
 let unsubscribeAlerts = null;
 let currentUser = null;
 
-// DOM Elements - Auth Screen
-const authContainer = document.getElementById("auth-container");
-const loginForm = document.getElementById("login-form");
-const registerForm = document.getElementById("register-form");
-const guestForm = document.getElementById("guest-form");
-const btnGuest = document.getElementById("btn-guest");
-const btnGoogle = document.getElementById("btn-google");
-const tabButtons = document.querySelectorAll(".tab-btn");
-
-// DOM Elements - Main Dashboard
-const appContainer = document.getElementById("app-container");
-const userDisplayName = document.getElementById("user-display-name");
-const userStatusBadge = document.getElementById("user-status-badge");
-const btnLogout = document.getElementById("btn-logout");
-
-// Navigation Elements
-const navButtons = document.querySelectorAll(".nav-btn");
-const dashboardSections = document.querySelectorAll(".dashboard-section");
-const quickNavButtons = document.querySelectorAll(".nav-link-btn");
-
-// DOM Elements - Checklist
-const securityCheckboxes = document.querySelectorAll(".security-checkbox");
-const escudoPorcentaje = document.getElementById("escudo-porcentaje");
-const escudoProgressBar = document.getElementById("escudo-progress-bar");
-
-// DOM Elements - Password Meter
-const passwordInput = document.getElementById("password-input");
-const strengthBar = document.getElementById("strength-bar");
-const hackTimeResult = document.getElementById("hack-time-result");
-const strengthLabel = document.getElementById("strength-label");
-const suggestionsBox = document.getElementById("password-suggestions");
-const suggestionsList = document.getElementById("suggestions-list");
-
-// DOM Elements - Quiz
-const quizStartScreen = document.getElementById("quiz-start-screen");
-const quizQuestionScreen = document.getElementById("quiz-question-screen");
-const quizScoreScreen = document.getElementById("quiz-score-screen");
-const btnStartQuiz = document.getElementById("btn-start-quiz");
-const btnRestartQuiz = document.getElementById("btn-restart-quiz");
-const btnNextQuestion = document.getElementById("btn-next-question");
-const quizQuestionText = document.getElementById("quiz-question-text");
-const quizAnswersContainer = document.getElementById("quiz-answers");
-const quizFeedback = document.getElementById("quiz-feedback");
-const quizFeedbackText = document.getElementById("quiz-feedback-text");
-const quizCurrentQuestionNum = document.getElementById("quiz-current-question-num");
-const quizProgressBar = document.getElementById("quiz-progress-bar");
-const quizFinalScore = document.getElementById("quiz-final-score");
-const quizEvaluationText = document.getElementById("quiz-evaluation-text");
-
-// DOM Elements - AI Chat
-const chatForm = document.getElementById("chat-form");
-const chatInput = document.getElementById("chat-input");
-const chatMessages = document.getElementById("chat-messages");
-const btnClearChat = document.getElementById("btn-clear-chat");
-const geminiKeyOverlay = document.getElementById("gemini-key-overlay");
-const geminiKeyForm = document.getElementById("gemini-key-form");
-const geminiKeyInput = document.getElementById("gemini-key-input");
-
-// DOM Elements - Alerts Feed
-const alertForm = document.getElementById("firebase-form");
-const btnSubmitAlert = document.getElementById("btn-submit");
-const loadingIndicator = document.getElementById("loading-indicator");
-const emptyState = document.getElementById("empty-state");
-const recordsList = document.getElementById("records-list");
-const dataCounter = document.getElementById("data-counter");
+// Global DOM references
+let authContainer;
+let loginForm;
+let registerForm;
+let guestForm;
+let btnGuest;
+let btnGoogle;
+let appContainer;
+let userDisplayName;
+let userStatusBadge;
+let btnLogout;
+let loadingIndicator;
+let emptyState;
+let recordsList;
+let dataCounter;
 
 // Initialize Firebase
 try {
@@ -154,63 +104,82 @@ try {
     alert("Error crítico al cargar las configuraciones de Firebase.");
 }
 
-// Switch Auth Tabs UI (Login / Register / Guest)
-tabButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        tabButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
+// Function to bind DOM elements & event listeners reliably
+function initAppDOM() {
+    authContainer = document.getElementById("auth-container");
+    loginForm = document.getElementById("login-form");
+    registerForm = document.getElementById("register-form");
+    guestForm = document.getElementById("guest-form");
+    btnGuest = document.getElementById("btn-guest");
+    btnGoogle = document.getElementById("btn-google");
+    appContainer = document.getElementById("app-container");
+    userDisplayName = document.getElementById("user-display-name");
+    userStatusBadge = document.getElementById("user-status-badge");
+    btnLogout = document.getElementById("btn-logout");
+    loadingIndicator = document.getElementById("loading-indicator");
+    emptyState = document.getElementById("empty-state");
+    recordsList = document.getElementById("records-list");
+    dataCounter = document.getElementById("data-counter");
 
-        const targetTab = btn.getAttribute("data-tab");
-        
-        if (loginForm) loginForm.classList.add("hidden");
-        if (registerForm) registerForm.classList.add("hidden");
-        if (guestForm) guestForm.classList.add("hidden");
+    // Event delegation for Auth Tabs (Entrar / Registrarse / Invitado)
+    document.addEventListener("click", (e) => {
+        const tabBtn = e.target.closest(".tab-btn");
+        if (tabBtn) {
+            e.preventDefault();
+            const allTabs = document.querySelectorAll(".tab-btn");
+            allTabs.forEach(b => b.classList.remove("active"));
+            tabBtn.classList.add("active");
 
-        if (targetTab === "login" && loginForm) {
-            loginForm.classList.remove("hidden");
-        } else if (targetTab === "register" && registerForm) {
-            registerForm.classList.remove("hidden");
-        } else if (targetTab === "guest" && guestForm) {
-            guestForm.classList.remove("hidden");
+            const targetTab = tabBtn.getAttribute("data-tab");
+            const lf = document.getElementById("login-form");
+            const rf = document.getElementById("register-form");
+            const gf = document.getElementById("guest-form");
+
+            if (lf) lf.classList.add("hidden");
+            if (rf) rf.classList.add("hidden");
+            if (gf) gf.classList.add("hidden");
+
+            if (targetTab === "login" && lf) lf.classList.remove("hidden");
+            if (targetTab === "register" && rf) rf.classList.remove("hidden");
+            if (targetTab === "guest" && gf) gf.classList.remove("hidden");
         }
-    });
-});
 
-// Interactive Dashboard Navigation Tabs
-navButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        // Switch active tab button
-        navButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        // Show target section, hide others
-        const targetSec = btn.getAttribute("data-sec");
-        dashboardSections.forEach(sec => {
-            sec.classList.add("hidden");
-        });
-        
-        const activeSection = document.getElementById(`sec-${targetSec}`);
-        if (activeSection) {
-            activeSection.classList.remove("hidden");
-        }
-
-        if (targetSec === "noticias") {
-            loadCyberNews();
-        }
-    });
-});
-
-// Quick Action Links on Home Tab (Welcome actions)
-quickNavButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        const targetSec = btn.getAttribute("data-target");
-        const navBtn = document.querySelector(`.nav-btn[data-sec="${targetSec}"]`);
+        // Event delegation for Dashboard Nav Tabs
+        const navBtn = e.target.closest(".nav-btn");
         if (navBtn) {
-            navBtn.click();
+            e.preventDefault();
+            const allNav = document.querySelectorAll(".nav-btn");
+            allNav.forEach(b => b.classList.remove("active"));
+            navBtn.classList.add("active");
+
+            const targetSec = navBtn.getAttribute("data-sec");
+            const allSections = document.querySelectorAll(".dashboard-section");
+            allSections.forEach(sec => sec.classList.add("hidden"));
+
+            const activeSection = document.getElementById(`sec-${targetSec}`);
+            if (activeSection) activeSection.classList.remove("hidden");
+
+            if (targetSec === "noticias") {
+                loadCyberNews();
+            }
+        }
+
+        // Event delegation for Quick Nav Links on Home tab
+        const linkBtn = e.target.closest(".nav-link-btn");
+        if (linkBtn) {
+            e.preventDefault();
+            const targetSec = linkBtn.getAttribute("data-target");
+            const targetNavBtn = document.querySelector(`.nav-btn[data-sec="${targetSec}"]`);
+            if (targetNavBtn) targetNavBtn.click();
         }
     });
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAppDOM);
+} else {
+    initAppDOM();
+}
 
 // --- LÓGICA DE INTERACTIVE CHECKLIST ---
 function loadChecklist() {
