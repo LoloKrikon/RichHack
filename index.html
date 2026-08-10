@@ -128,6 +128,9 @@
                 <button class="nav-btn active" data-sec="inicio">
                     <i class="fa-solid fa-house"></i> <span>Inicio</span>
                 </button>
+                <button class="nav-btn" data-sec="noticias">
+                    <i class="fa-solid fa-newspaper"></i> <span>Noticias</span>
+                </button>
                 <button class="nav-btn" data-sec="ataques">
                     <i class="fa-solid fa-bug"></i> <span>Ataques</span>
                 </button>
@@ -172,6 +175,31 @@
                     <img src="assets/img/hacker.png" alt="Hacker en su consola de comando" class="hacker-img">
                 </div>
             </div>
+        </section>
+
+        <!-- SECTION: NOTICIAS DE CIBERSEGURIDAD -->
+        <section id="sec-noticias" class="dashboard-section hidden fade-in">
+            <div class="section-title">
+                <i class="fa-solid fa-newspaper title-icon"></i>
+                <h2>Noticias de Ciberseguridad</h2>
+            </div>
+            <p class="news-section-desc">Últimas noticias y amenazas del mundo de la ciberseguridad, actualizadas en tiempo real.</p>
+
+            <!-- Loading State -->
+            <div id="news-loading" class="loading-state" style="min-height: 200px;">
+                <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+                <p>Cargando noticias...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="news-error" class="empty-state hidden" style="min-height: 200px;">
+                <i class="fa-solid fa-wifi-slash empty-icon" style="font-size: 2rem;"></i>
+                <p>No se pudieron cargar las noticias</p>
+                <button id="btn-retry-news" class="btn-action" style="margin-top: 0.5rem; font-size: 0.8rem;">Reintentar</button>
+            </div>
+
+            <!-- News Feed -->
+            <div id="news-feed" class="news-feed hidden"></div>
         </section>
 
         <!-- SECTION 2: ATAQUES (HACKS) -->

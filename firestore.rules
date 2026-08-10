@@ -36,6 +36,34 @@ service cloud.firestore {
     }
 
     // ============================================
+    // REGLAS PARA: comentarios_noticias
+    // ============================================
+    match /comentarios_noticias/{comentarioId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.auth.token.firebase.sign_in_provider != "anonymous"
+                    && request.resource.data.keys().hasAll(["newsId", "texto", "autor", "autorUid", "parentId", "timestamp"])
+                    && request.resource.data.keys().size() == 6
+                    && request.resource.data.newsId is string
+                    && request.resource.data.newsId.size() >= 1
+                    && request.resource.data.newsId.size() <= 200
+                    && request.resource.data.texto is string
+                    && request.resource.data.texto.size() >= 1
+                    && request.resource.data.texto.size() <= 1000
+                    && request.resource.data.autor is string
+                    && request.resource.data.autor.size() <= 100
+                    && request.resource.data.autorUid == request.auth.uid
+                    && (request.resource.data.parentId == null || request.resource.data.parentId is string)
+                    && request.resource.data.timestamp == request.time;
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.autorUid;
+
+      allow update: if false;
+    }
+
+    // ============================================
     // REGLA POR DEFECTO: Denegar todo lo demás
     // ============================================
     match /{document=**} {

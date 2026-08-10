@@ -11,6 +11,7 @@ import {
     onSnapshot, 
     serverTimestamp, 
     query, 
+    where,
     orderBy, 
     limit, 
     deleteDoc, 
@@ -191,6 +192,10 @@ navButtons.forEach(btn => {
         const activeSection = document.getElementById(`sec-${targetSec}`);
         if (activeSection) {
             activeSection.classList.remove("hidden");
+        }
+
+        if (targetSec === "noticias") {
+            loadCyberNews();
         }
     });
 });
@@ -998,4 +1003,393 @@ function handleAuthError(error) {
             msg = error.message;
     }
     alert(msg);
+}
+
+// --- LÓGICA DE NOTICIAS Y COMENTARIOS ---
+const newsLoading = document.getElementById("news-loading");
+const newsError = document.getElementById("news-error");
+const newsFeed = document.getElementById("news-feed");
+const btnRetryNews = document.getElementById("btn-retry-news");
+
+let newsLoaded = false;
+const activeCommentUnsubs = {};
+
+if (btnRetryNews) {
+    btnRetryNews.addEventListener("click", () => {
+        newsLoaded = false;
+        loadCyberNews();
+    });
+}
+
+async function loadCyberNews() {
+    if (newsLoaded) return;
+    if (newsLoading) newsLoading.style.display = "flex";
+    if (newsError) newsError.classList.add("hidden");
+    if (newsFeed) {
+        newsFeed.classList.add("hidden");
+        newsFeed.innerHTML = "";
+    }
+
+    try {
+        const feedUrl = "https://feeds.feedburner.com/TheHackersNews";
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+        const data = await res.json();
+
+        if (data.status !== "ok" || !data.items || data.items.length === 0) {
+            throw new Error("No se pudieron cargar las noticias.");
+        }
+
+        if (newsLoading) newsLoading.style.display = "none";
+        if (newsFeed) newsFeed.classList.remove("hidden");
+
+        data.items.forEach(item => {
+            renderNewsCard(item);
+        });
+
+        newsLoaded = true;
+    } catch (err) {
+        console.error("Error cargando noticias:", err);
+        if (newsLoading) newsLoading.style.display = "none";
+        if (newsError) newsError.classList.remove("hidden");
+    }
+}
+
+function generateNewsId(urlOrGuid) {
+    let hash = 0;
+    const str = urlOrGuid || "";
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0;
+    }
+    return "news_" + Math.abs(hash);
+}
+
+function renderNewsCard(item) {
+    if (!newsFeed) return;
+
+    const newsId = generateNewsId(item.guid || item.link);
+    const card = document.createElement("article");
+    card.className = "news-card";
+
+    // Extract thumbnail or image if present
+    let imgUrl = item.thumbnail || item.enclosure?.link;
+    if (!imgUrl && item.description) {
+        const match = item.description.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (match) imgUrl = match[1];
+    }
+    if (!imgUrl) imgUrl = "assets/img/hacker.png";
+
+    // Clean description snippet
+    let tempDiv = document.createElement("div");
+    tempDiv.innerHTML = item.description || "";
+    let cleanText = tempDiv.textContent || tempDiv.innerText || "";
+    cleanText = cleanText.trim().substring(0, 160) + "...";
+
+    // Format date
+    let dateStr = "";
+    if (item.pubDate) {
+        const d = new Date(item.pubDate);
+        dateStr = d.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    card.innerHTML = `
+        <div class="news-card-img-wrapper">
+            <img src="${imgUrl}" alt="${escapeHTML(item.title)}" class="news-card-img" onerror="this.src='assets/img/hacker.png'">
+        </div>
+        <div class="news-card-body">
+            <div class="news-meta">
+                <span class="news-source"><i class="fa-solid fa-rss"></i> The Hacker News</span>
+                <span class="news-date">${dateStr}</span>
+            </div>
+            <h3 class="news-title">${escapeHTML(item.title)}</h3>
+            <p class="news-snippet">${escapeHTML(cleanText)}</p>
+            <div class="news-actions">
+                <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="btn-news-link">
+                    <span>Leer más</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+                <button class="btn-news-comments" data-news-id="${newsId}">
+                    <i class="fa-regular fa-comment"></i> <span>Comentar</span>
+                </button>
+            </div>
+        </div>
+        <div class="comments-container hidden" id="comments-${newsId}">
+            <div class="comments-header">
+                <span><i class="fa-solid fa-comments"></i> Debate y Comentarios</span>
+            </div>
+            <div class="comments-list" id="comments-list-${newsId}">
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">Cargando comentarios...</p>
+            </div>
+            <form class="comment-form" data-news-id="${newsId}">
+                <input type="text" class="comment-input" placeholder="Escribe un comentario..." required autocomplete="off" />
+                <button type="submit" class="btn-send-comment">Publicar</button>
+            </form>
+        </div>
+    `;
+
+    newsFeed.appendChild(card);
+
+    // Toggle comments handler
+    const btnComments = card.querySelector(".btn-news-comments");
+    const commentsContainer = card.querySelector(`#comments-${newsId}`);
+    if (btnComments && commentsContainer) {
+        btnComments.addEventListener("click", () => {
+            const isHidden = commentsContainer.classList.toggle("hidden");
+            if (!isHidden) {
+                subscribeToNewsComments(newsId);
+            }
+        });
+    }
+
+    // New Root Comment form handler
+    const commentForm = card.querySelector(`.comment-form`);
+    if (commentForm) {
+        commentForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const input = commentForm.querySelector(".comment-input");
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+            postNewsComment(newsId, text, null, input);
+        });
+    }
+}
+
+function subscribeToNewsComments(newsId) {
+    if (activeCommentUnsubs[newsId]) return; // already listening
+
+    const commentsList = document.getElementById(`comments-list-${newsId}`);
+    if (!commentsList) return;
+
+    try {
+        const q = query(
+            collection(db, "comentarios_noticias"),
+            where("newsId", "==", newsId),
+            orderBy("timestamp", "asc")
+        );
+
+        activeCommentUnsubs[newsId] = onSnapshot(q, (snapshot) => {
+            commentsList.innerHTML = "";
+            
+            if (snapshot.empty) {
+                commentsList.innerHTML = `
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; padding: 1rem 0;">
+                        No hay comentarios todavía. ¡Sé el primero en comentar!
+                    </p>
+                `;
+                return;
+            }
+
+            // Separate root comments and replies
+            const rootComments = [];
+            const repliesMap = {};
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const commentObj = { id: docSnap.id, ...data };
+                if (!data.parentId) {
+                    rootComments.push(commentObj);
+                } else {
+                    if (!repliesMap[data.parentId]) repliesMap[data.parentId] = [];
+                    repliesMap[data.parentId].push(commentObj);
+                }
+            });
+
+            rootComments.forEach(comment => {
+                const commentEl = renderCommentItem(newsId, comment, repliesMap[comment.id] || []);
+                commentsList.appendChild(commentEl);
+            });
+        }, (error) => {
+            console.error("Error leyendo comentarios:", error);
+            commentsList.innerHTML = `<p style="font-size: 0.8rem; color: #ff8a00;">Error al cargar comentarios.</p>`;
+        });
+    } catch (e) {
+        console.error("Error suscribiendo comentarios:", e);
+    }
+}
+
+function renderCommentItem(newsId, comment, replies) {
+    const itemDiv = document.createElement("div");
+    itemDiv.className = "comment-item";
+    itemDiv.id = `comment-${comment.id}`;
+
+    let dateStr = "Justo ahora";
+    if (comment.timestamp) {
+        const d = comment.timestamp.toDate();
+        dateStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + d.toLocaleDateString();
+    }
+
+    const autor = escapeHTML(comment.autor || "Anónimo");
+    const texto = escapeHTML(comment.texto || "");
+    const isCreator = currentUser && (currentUser.uid === comment.autorUid);
+
+    itemDiv.innerHTML = `
+        <div class="comment-header">
+            <span class="comment-author"><i class="fa-solid fa-user-circle"></i> ${autor}</span>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span class="comment-time">${dateStr}</span>
+                ${isCreator ? `
+                    <button class="btn-delete-record" data-comment-id="${comment.id}" title="Eliminar mi comentario">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+        <div class="comment-text">${texto}</div>
+        <div class="comment-footer">
+            <button class="btn-reply-comment" data-comment-id="${comment.id}">
+                <i class="fa-solid fa-reply"></i> Responder
+            </button>
+        </div>
+        <div class="reply-form-wrapper hidden" id="reply-box-${comment.id}"></div>
+        <div class="replies-list" id="replies-list-${comment.id}"></div>
+    `;
+
+    // Handle delete
+    if (isCreator) {
+        const delBtn = itemDiv.querySelector(".btn-delete-record");
+        if (delBtn) {
+            delBtn.addEventListener("click", async () => {
+                if (confirm("¿Quieres eliminar este comentario?")) {
+                    try {
+                        await deleteDoc(doc(db, "comentarios_noticias", comment.id));
+                    } catch (e) {
+                        console.error("Error eliminando comentario:", e);
+                        alert("No se pudo eliminar el comentario.");
+                    }
+                }
+            });
+        }
+    }
+
+    // Handle Reply button click
+    const btnReply = itemDiv.querySelector(".btn-reply-comment");
+    const replyBox = itemDiv.querySelector(`#reply-box-${comment.id}`);
+    if (btnReply && replyBox) {
+        btnReply.addEventListener("click", () => {
+            if (replyBox.classList.contains("hidden")) {
+                replyBox.classList.remove("hidden");
+                replyBox.innerHTML = `
+                    <form class="reply-form">
+                        <input type="text" class="reply-input" placeholder="Responder a ${autor}..." required autocomplete="off" />
+                        <button type="submit" class="btn-send-reply">Enviar</button>
+                    </form>
+                `;
+                const rInput = replyBox.querySelector(".reply-input");
+                if (rInput) rInput.focus();
+
+                const rForm = replyBox.querySelector(".reply-form");
+                if (rForm) {
+                    rForm.addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        const rText = rInput.value.trim();
+                        if (!rText) return;
+                        postNewsComment(newsId, rText, comment.id, rInput, replyBox);
+                    });
+                }
+            } else {
+                replyBox.classList.add("hidden");
+                replyBox.innerHTML = "";
+            }
+        });
+    }
+
+    // Render child replies
+    const repliesListEl = itemDiv.querySelector(`#replies-list-${comment.id}`);
+    if (repliesListEl && replies.length > 0) {
+        replies.forEach(reply => {
+            const replyDiv = renderReplyItem(reply);
+            repliesListEl.appendChild(replyDiv);
+        });
+    }
+
+    return itemDiv;
+}
+
+function renderReplyItem(reply) {
+    const rDiv = document.createElement("div");
+    rDiv.className = "comment-item";
+    rDiv.style.background = "rgba(0, 242, 254, 0.02)";
+
+    let dateStr = "Justo ahora";
+    if (reply.timestamp) {
+        const d = reply.timestamp.toDate();
+        dateStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + d.toLocaleDateString();
+    }
+
+    const autor = escapeHTML(reply.autor || "Anónimo");
+    const texto = escapeHTML(reply.texto || "");
+    const isCreator = currentUser && (currentUser.uid === reply.autorUid);
+
+    rDiv.innerHTML = `
+        <div class="comment-header">
+            <span class="comment-author" style="font-size: 0.75rem;"><i class="fa-solid fa-turn-up fa-rotate-90"></i> ${autor}</span>
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span class="comment-time">${dateStr}</span>
+                ${isCreator ? `
+                    <button class="btn-delete-record" data-comment-id="${reply.id}" title="Eliminar mi respuesta">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+        <div class="comment-text" style="font-size: 0.8rem;">${texto}</div>
+    `;
+
+    if (isCreator) {
+        const delBtn = rDiv.querySelector(".btn-delete-record");
+        if (delBtn) {
+            delBtn.addEventListener("click", async () => {
+                if (confirm("¿Quieres eliminar esta respuesta?")) {
+                    try {
+                        await deleteDoc(doc(db, "comentarios_noticias", reply.id));
+                    } catch (e) {
+                        console.error("Error eliminando respuesta:", e);
+                        alert("No se pudo eliminar la respuesta.");
+                    }
+                }
+            });
+        }
+    }
+
+    return rDiv;
+}
+
+async function postNewsComment(newsId, text, parentId = null, inputEl = null, replyBoxEl = null) {
+    if (!currentUser) {
+        alert("Debes iniciar sesión para publicar un comentario.");
+        return;
+    }
+
+    if (currentUser.isAnonymous) {
+        alert("Los usuarios invitados no pueden publicar comentarios. Regístrate o inicia sesión para participar.");
+        return;
+    }
+
+    if (text.length < 1 || text.length > 1000) {
+        alert("El comentario debe tener entre 1 y 1000 caracteres.");
+        return;
+    }
+
+    try {
+        const creatorName = currentUser.displayName || currentUser.email;
+
+        await addDoc(collection(db, "comentarios_noticias"), {
+            newsId: newsId,
+            texto: text,
+            autor: creatorName,
+            autorUid: currentUser.uid,
+            parentId: parentId || null,
+            timestamp: serverTimestamp()
+        });
+
+        if (inputEl) inputEl.value = "";
+        if (replyBoxEl) {
+            replyBoxEl.classList.add("hidden");
+            replyBoxEl.innerHTML = "";
+        }
+    } catch (e) {
+        console.error("Error publicando comentario:", e);
+        alert("No se pudo publicar el comentario. Verifica tu conexión.");
+    }
 }
