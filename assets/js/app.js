@@ -1,5 +1,5 @@
 window.addEventListener('error', (e) => {
-    alert("Error de JS: " + e.message + "\nEn: " + e.filename + ":" + e.lineno);
+    console.error("[RichHack Error]", e.message);
 });
 
 // Import SDK modules from official Firebase CDN
@@ -853,6 +853,21 @@ if (alertForm) {
 
         if (!currentUser) {
             alert("Debes iniciar sesión para publicar una alerta.");
+            return;
+        }
+
+        if (currentUser.isAnonymous) {
+            alert("Los usuarios invitados no pueden publicar alertas. Regístrate o inicia sesión con una cuenta para contribuir.");
+            return;
+        }
+
+        if (titulo.length < 3 || titulo.length > 200) {
+            alert("El título debe tener entre 3 y 200 caracteres.");
+            return;
+        }
+
+        if (detalles.length < 5 || detalles.length > 2000) {
+            alert("Los detalles deben tener entre 5 y 2000 caracteres.");
             return;
         }
 

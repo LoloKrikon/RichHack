@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // REGLAS PARA: alertas_seguridad
+    // ============================================
+    match /alertas_seguridad/{alertaId} {
+
+      // LECTURA: Solo usuarios autenticados (incluye anónimos)
+      allow read: if request.auth != null;
+
+      // CREACIÓN: Solo usuarios autenticados NO anónimos
+      // + Validación estricta de los campos
+      allow create: if request.auth != null
+                    && request.auth.token.firebase.sign_in_provider != "anonymous"
+                    && request.resource.data.keys().hasAll(["titulo", "detalles", "autor", "autorUid", "timestamp"])
+                    && request.resource.data.keys().size() == 5
+                    && request.resource.data.titulo is string
+                    && request.resource.data.titulo.size() >= 3
+                    && request.resource.data.titulo.size() <= 200
+                    && request.resource.data.detalles is string
+                    && request.resource.data.detalles.size() >= 5
+                    && request.resource.data.detalles.size() <= 2000
+                    && request.resource.data.autor is string
+                    && request.resource.data.autor.size() <= 100
+                    && request.resource.data.autorUid == request.auth.uid
+                    && request.resource.data.timestamp == request.time;
+
+      // ELIMINACIÓN: Solo el autor original puede borrar su propia alerta
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.autorUid;
+
+      // ACTUALIZACIÓN: Nadie puede editar alertas (inmutables)
+      allow update: if false;
+    }
+
+    // ============================================
+    // REGLA POR DEFECTO: Denegar todo lo demás
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

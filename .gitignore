@@ -3,6 +3,8 @@
 .AppleDouble
 .LSOverride
 ._*
+.Spotlight-V100
+.Trashes
 
 # IDEs & Editors
 .vscode/
@@ -10,20 +12,36 @@
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # Node
 node_modules/
 npm-debug.log*
+yarn-error.log*
+package-lock.json
 
 # Firebase
 .firebase/
 firebase-debug.log
 firebase-tools.log
+firebase-debug.*.log
 
-# Environment
+# Environment & Secrets
 .env
-.env.local
-.env.*.local
+.env.*
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+serviceAccountKey.json
+*-service-account.json
 
 # Logs
 *.log
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
