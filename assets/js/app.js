@@ -156,7 +156,8 @@ try {
 
 // Switch Auth Tabs UI (Login / Register / Guest)
 tabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+        e.preventDefault();
         tabButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
@@ -641,10 +642,16 @@ if (registerForm) {
         e.preventDefault();
         const emailInput = document.getElementById("register-email");
         const passwordInputEl = document.getElementById("register-password");
+        const submitBtn = registerForm.querySelector("button[type='submit']");
         if (!emailInput || !passwordInputEl) return;
         
         const email = emailInput.value.trim();
         const password = passwordInputEl.value.trim();
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando cuenta...</span>';
+        }
 
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -654,6 +661,12 @@ if (registerForm) {
             .catch((error) => {
                 console.error("Error de registro:", error);
                 handleAuthError(error);
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span class="btn-text">Crear Cuenta</span><i class="fa-solid fa-user-plus btn-icon"></i>';
+                }
             });
     });
 }
@@ -664,10 +677,16 @@ if (loginForm) {
         e.preventDefault();
         const emailInput = document.getElementById("login-email");
         const passwordInputEl = document.getElementById("login-password");
+        const submitBtn = loginForm.querySelector("button[type='submit']");
         if (!emailInput || !passwordInputEl) return;
         
         const email = emailInput.value.trim();
         const password = passwordInputEl.value.trim();
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Entrando...</span>';
+        }
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
@@ -677,20 +696,34 @@ if (loginForm) {
             .catch((error) => {
                 console.error("Error de login:", error);
                 handleAuthError(error);
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span class="btn-text">Iniciar Sesión</span><i class="fa-solid fa-right-to-bracket btn-icon"></i>';
+                }
             });
     });
 }
 
 // Auth Logic: Guest Sign In (Anonymous)
 if (btnGuest) {
-    btnGuest.addEventListener("click", () => {
+    btnGuest.addEventListener("click", (e) => {
+        e.preventDefault();
+        btnGuest.disabled = true;
+        btnGuest.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Conectando...</span>';
+
         signInAnonymously(auth)
             .then(() => {
                 console.log("Acceso como invitado anónimo correcto");
             })
             .catch((error) => {
                 console.error("Error de acceso anónimo:", error);
-                alert("No se pudo iniciar sesión como Invitado. Verifica que esté habilitado en Firebase.");
+                alert("Error al acceder como Invitado: " + (error.message || error.code));
+            })
+            .finally(() => {
+                btnGuest.disabled = false;
+                btnGuest.innerHTML = '<span class="btn-text">Entrar como Invitado</span><i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>';
             });
     });
 }
