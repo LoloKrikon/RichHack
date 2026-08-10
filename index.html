@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RichHack - Seguridad Informática</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+    <!-- Background Animations -->
+    <div class="glass-bg"></div>
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+
+    <!-- 1. PANTALLA DE BIENVENIDA / AUTENTICACIÓN -->
+    <div id="auth-container" class="auth-container">
+        <div class="card auth-card">
+            <!-- Brand Logo -->
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <h1>Rich<span>Hack</span></h1>
+            </div>
+            <p class="subtitle">Aprende sobre hackeos y protégete en internet</p>
+
+            <!-- Tabs selector -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Entrar</button>
+                <button class="tab-btn" data-tab="register">Registrarse</button>
+                <button class="tab-btn" data-tab="guest">Invitado</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form tab-content">
+                <div class="input-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                        <input type="email" id="login-email" placeholder="ejemplo@correo.com" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="login-password" placeholder="Tu contraseña" required autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <i class="fa-solid fa-right-to-bracket btn-icon"></i>
+                </button>
+            </form>
+
+            <!-- Register Form (hidden initially) -->
+            <form id="register-form" class="auth-form tab-content hidden">
+                <div class="input-group">
+                    <label for="register-email">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-envelope input-icon"></i>
+                        <input type="email" id="register-email" placeholder="ejemplo@correo.com" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Contraseña</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="register-password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <span class="btn-text">Crear Cuenta</span>
+                    <i class="fa-solid fa-user-plus btn-icon"></i>
+                </button>
+            </form>
+
+            <!-- Guest Form (hidden initially) -->
+            <div id="guest-form" class="auth-form tab-content hidden">
+                <div class="guest-info">
+                    <i class="fa-solid fa-user-secret guest-icon"></i>
+                    <p>Accede de forma anónima para leer la información de ciberseguridad y ver las alertas comunitarias.</p>
+                </div>
+                <button id="btn-guest" class="btn-submit btn-secondary">
+                    <span class="btn-text">Entrar como Invitado</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>
+                </button>
+            </div>
+
+            <!-- Social Logins (Google) -->
+            <div class="social-divider">
+                <span>O accede de forma rápida</span>
+            </div>
+            <button id="btn-google" class="btn-google">
+                <i class="fa-brands fa-google google-icon"></i>
+                <span>Continuar con Google</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD PRINCIPAL (Oculto al inicio) -->
+    <main id="app-container" class="app-container hidden">
+        <!-- Logged in Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="logo">
+                    <i class="fa-solid fa-shield-halved logo-icon"></i>
+                    <h1>Rich<span>Hack</span></h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-meta">
+                        <span id="user-display-name" class="user-name">Invitado</span>
+                        <span id="user-status-badge" class="user-role-badge">Sesión Activa</span>
+                    </div>
+                    <button id="btn-logout" class="btn-logout" title="Cerrar sesión">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Interactive Navigation Bar -->
+            <nav class="dashboard-nav">
+                <button class="nav-btn active" data-sec="inicio">
+                    <i class="fa-solid fa-house"></i> <span>Inicio</span>
+                </button>
+                <button class="nav-btn" data-sec="ataques">
+                    <i class="fa-solid fa-bug"></i> <span>Ataques</span>
+                </button>
+                <button class="nav-btn" data-sec="proteccion">
+                    <i class="fa-solid fa-user-shield"></i> <span>Protección</span>
+                </button>
+                <button class="nav-btn" data-sec="herramientas">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> <span>Herramientas</span>
+                </button>
+                <button class="nav-btn" data-sec="asistente">
+                    <i class="fa-solid fa-robot"></i> <span>Asistente IA</span>
+                </button>
+                <button class="nav-btn" data-sec="alertas">
+                    <i class="fa-solid fa-bullhorn"></i> <span>Alertas</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Dynamic Content Sections -->
+        
+        <!-- SECTION 1: INICIO (HOME) -->
+        <section id="sec-inicio" class="dashboard-section fade-in">
+            <div class="welcome-card">
+                <div class="welcome-text">
+                    <h2>Bienvenido al Portal de Seguridad</h2>
+                    <p class="welcome-desc">Internet está lleno de oportunidades, pero también de amenazas invisibles. En RichHack, nos dedicamos a educar sobre las técnicas utilizadas por los atacantes cibernéticos y las medidas fundamentales que puedes tomar para mantener a salvo tu identidad y tu información.</p>
+                    <p class="welcome-subdesc">Explora las secciones interactivas para aprender sobre ataques populares, checklists de seguridad o para reportar incidentes que hayas observado a la comunidad en tiempo real.</p>
+                    
+                    <div class="welcome-actions">
+                        <button class="btn-action nav-link-btn" data-target="ataques">
+                            <i class="fa-solid fa-virus-slash"></i> Conocer Ataques
+                        </button>
+                        <button class="btn-action btn-sec nav-link-btn" data-target="proteccion">
+                            <i class="fa-solid fa-key"></i> Cómo Protegerse
+                        </button>
+                        <button class="btn-action btn-alert nav-link-btn" data-target="alertas">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Ver Alertas
+                        </button>
+                    </div>
+                </div>
+                <div class="welcome-media">
+                    <img src="src/hacker.png" alt="Hacker en su consola de comando" class="hacker-img">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: ATAQUES (HACKS) -->
+        <section id="sec-ataques" class="dashboard-section hidden fade-in">
+            <div class="section-title">
+                <i class="fa-solid fa-skull title-icon"></i>
+                <h2>Catálogo de Ataques Cibernéticos</h2>
+            </div>
+            
+            <div class="hacks-grid">
+                <!-- Hack Item 1 -->
+                <article class="hack-card">
+                    <div class="hack-header">
+                        <span class="hack-badge phish">Ataque</span>
+                        <h3>Phishing (Suplantación)</h3>
+                    </div>
+                    <p class="hack-desc">Correos electrónicos, mensajes o sitios web falsos que simulan ser de entidades de confianza (bancos, redes sociales) para engañarte y robar tus contraseñas o números de tarjeta.</p>
+                    <div class="hack-example">
+                        <strong>Ejemplo típico:</strong> Un correo urgente de "tu banco" diciendo que tu cuenta ha sido bloqueada y dándote un enlace para iniciar sesión.
+                    </div>
+                </article>
+
+                <!-- Hack Item 2 -->
+                <article class="hack-card">
+                    <div class="hack-header">
+                        <span class="hack-badge ransom">Malware</span>
+                        <h3>Ransomware (Secuestro de datos)</h3>
+                    </div>
+                    <p class="hack-desc">Virus informáticos que secuestran y cifran los archivos de tu ordenador o teléfono, impidiendo que accedas a ellos y exigiendo un pago económico (rescate) para liberarlos.</p>
+                    <div class="hack-example">
+                        <strong>Ejemplo típico:</strong> Descargar un archivo adjunto extraño de factura en un email que resulta ser un ejecutable que encripta tus fotos y documentos.
+                    </div>
+                </article>
+
+                <!-- Hack Item 3 -->
+                <article class="hack-card">
+                    <div class="hack-header">
+                        <span class="hack-badge network">Red</span>
+                        <h3>Man-in-the-Middle (MitM)</h3>
+                    </div>
+                    <p class="hack-desc">Un atacante intercepta la comunicación entre tu dispositivo e internet, usualmente en redes Wi-Fi públicas sin seguridad, capturando todo lo que envías y recibes.</p>
+                    <div class="hack-example">
+                        <strong>Ejemplo típico:</strong> Conectarse a la red abierta "Wi-Fi Gratis Aeropuerto" creada por un hacker para leer tus mensajes de WhatsApp o contraseñas.
+                    </div>
+                </article>
+
+                <!-- Hack Item 4 -->
+                <article class="hack-card">
+                    <div class="hack-header">
+                        <span class="hack-badge auth-badge">Acceso</span>
+                        <h3>Fuerza Bruta (Brute Force)</h3>
+                    </div>
+                    <p class="hack-desc">Los atacantes utilizan sistemas automáticos muy potentes que prueban miles de millones de combinaciones de contraseñas por segundo hasta dar con la tuya.</p>
+                    <div class="hack-example">
+                        <strong>Ejemplo típico:</strong> Adivinar cuentas que usan contraseñas débiles o por defecto como `123456`, `admin` o `password`.
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PROTECCIÓN (PREVENTION CHECKLIST) -->
+        <section id="sec-proteccion" class="dashboard-section hidden fade-in">
+            <div class="section-title">
+                <i class="fa-solid fa-user-shield title-icon"></i>
+                <h2>Plan Personal de Ciberseguridad</h2>
+            </div>
+            
+            <div class="checklist-card card">
+                <div class="progress-container">
+                    <div class="progress-text">
+                        <span>Tu Nivel de Escudo</span>
+                        <span id="escudo-porcentaje">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="escudo-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="checklist-items">
+                    <label class="check-item">
+                        <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-mfa">
+                        <span class="check-box"></span>
+                        <div class="check-text">
+                            <h3>Activar Doble Factor (MFA) <span class="badge badge-chk">+25%</span></h3>
+                            <p>Activado en Google, bancos, redes sociales y mi gestor de contraseñas.</p>
+                        </div>
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-passwords">
+                        <span class="check-box"></span>
+                        <div class="check-text">
+                            <h3>Usar Gestor de Contraseñas <span class="badge badge-chk">+25%</span></h3>
+                            <p>Todas mis cuentas tienen claves aleatorias únicas de más de 14 caracteres.</p>
+                        </div>
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-backups">
+                        <span class="check-box"></span>
+                        <div class="check-text">
+                            <h3>Configurar Copias de Seguridad <span class="badge badge-chk">+25%</span></h3>
+                            <p>Mis archivos importantes se respaldan automáticamente en un disco externo o la nube.</p>
+                        </div>
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-updates">
+                        <span class="check-box"></span>
+                        <div class="check-text">
+                            <h3>Actualizaciones Automáticas <span class="badge badge-chk">+25%</span></h3>
+                            <p>El sistema operativo de mi móvil y ordenador se actualiza de manera automática.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: HERRAMIENTAS (PASSWORD METER & QUIZ) -->
+        <section id="sec-herramientas" class="dashboard-section hidden fade-in">
+            <div class="grid-layout">
+                <!-- Password Strength Meter Card -->
+                <div class="card password-meter-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-key header-icon"></i>
+                        <h2>Analizador de Contraseñas</h2>
+                    </div>
+                    <p class="section-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Escribe una contraseña para calcular cuánto tiempo tardaría un ataque de fuerza bruta en adivinarla. Tu clave se procesa localmente y es 100% segura.</p>
+                    
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="text" id="password-input" placeholder="Escribe tu contraseña..." autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="strength-bar-container mt-2">
+                        <div id="strength-bar" class="strength-bar"></div>
+                    </div>
+
+                    <div class="meter-results mt-2">
+                        <div class="result-row">
+                            <span>Tiempo de Hackeo:</span>
+                            <strong id="hack-time-result">Instante (Muy Débil)</strong>
+                        </div>
+                        <div class="result-row">
+                            <span>Fuerza:</span>
+                            <strong id="strength-label">Nula</strong>
+                        </div>
+                    </div>
+
+                    <div id="password-suggestions" class="suggestions-box mt-2 hidden">
+                        <h4><i class="fa-solid fa-circle-info"></i> Sugerencias de Mejora:</h4>
+                        <ul id="suggestions-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Security Quiz Card -->
+                <div class="card quiz-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-graduation-cap header-icon"></i>
+                        <h2>Quiz de Ciberseguridad</h2>
+                    </div>
+                    
+                    <!-- Quiz Start Screen -->
+                    <div id="quiz-start-screen" class="quiz-screen">
+                        <i class="fa-solid fa-shield-virus quiz-large-icon"></i>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">Demuestra tus conocimientos sobre ciberseguridad y ataques comunes respondiendo un test rápido de 5 preguntas.</p>
+                        <button id="btn-start-quiz" class="btn-submit" style="width: 100%;">Empezar Quiz</button>
+                    </div>
+
+                    <!-- Quiz Question Screen (hidden initially) -->
+                    <div id="quiz-question-screen" class="quiz-screen hidden">
+                        <div class="quiz-progress">
+                            <span id="quiz-current-question-num" style="font-size: 0.8rem; color: var(--text-secondary);">Pregunta 1 de 5</span>
+                            <div class="quiz-progress-bar-bg">
+                                <div id="quiz-progress-bar" style="width: 20%"></div>
+                            </div>
+                        </div>
+                        <h3 id="quiz-question-text" class="quiz-question">¿Qué es un ataque de Phishing?</h3>
+                        <div id="quiz-answers" class="quiz-answers">
+                            <!-- Answer buttons will be generated dynamically -->
+                        </div>
+                        <div id="quiz-feedback" class="quiz-feedback hidden">
+                            <p id="quiz-feedback-text"></p>
+                            <button id="btn-next-question" class="btn-submit mt-2" style="width: 100%;">Siguiente Pregunta</button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Score Screen (hidden initially) -->
+                    <div id="quiz-score-screen" class="quiz-screen hidden">
+                        <i class="fa-solid fa-award quiz-large-icon" style="color: var(--accent-color);"></i>
+                        <h3 style="text-align: center; margin-bottom: 0.5rem;">¡Cuestionario Completado!</h3>
+                        <p class="quiz-score-summary">Puntuación: <strong id="quiz-final-score">0 / 5</strong></p>
+                        <p id="quiz-evaluation-text" class="quiz-evaluation">Necesitas aprender más sobre ciberseguridad.</p>
+                        <button id="btn-restart-quiz" class="btn-submit mt-2" style="width: 100%;">Repetir Cuestionario</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: ASISTENTE IA (CHATBOT GEMINI) -->
+        <section id="sec-asistente" class="dashboard-section hidden fade-in">
+            <div class="chat-container card">
+                <div class="card-header chat-header">
+                    <i class="fa-solid fa-robot header-icon"></i>
+                    <h2>Asistente de Inteligencia Artificial</h2>
+                    <button id="btn-clear-chat" class="btn-delete-record" style="margin-left: auto;" title="Limpiar chat"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                
+                <!-- Chat Window messages feed -->
+                <div id="chat-messages" class="chat-messages">
+                    <div class="chat-message bot">
+                        <div class="message-bubble">
+                            ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input area -->
+                <form id="chat-form" class="chat-form">
+                    <input type="text" id="chat-input" placeholder="Pregúntame sobre ciberseguridad..." required autocomplete="off">
+                    <button type="submit" class="btn-chat-send" id="btn-chat-send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Gemini Key Setup Overlay inside tab (glowing card if key is missing) -->
+            <div id="gemini-key-overlay" class="gemini-key-overlay hidden">
+                <div class="card key-setup-card">
+                    <i class="fa-solid fa-key key-large-icon"></i>
+                    <h3 style="margin-bottom: 0.5rem; text-align: center;">Configurar Asistente IA</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">Para conversar con el chatbot, necesitas una API Key de Google Gemini. Consíguela de forma <strong>100% gratuita</strong> en segundos:</p>
+                    <ol class="key-steps">
+                        <li>Ve a **[Google AI Studio](https://aistudio.google.com/)** e inicia sesión con tu cuenta de Google.</li>
+                        <li>Haz clic en el botón **"Get API key"** y crea una clave nueva.</li>
+                        <li>Pégala aquí abajo. Quedará guardada de forma segura únicamente en tu navegador.</li>
+                    </ol>
+                    <form id="gemini-key-form" class="interactive-form mt-2">
+                        <div class="input-group">
+                            <input type="text" id="gemini-key-input" placeholder="Pega tu API Key (AIzaSy...)" required autocomplete="off" style="padding: 0.8rem 1rem;">
+                        </div>
+                        <button type="submit" class="btn-submit" style="width: 100%;">Guardar y Conectar Chat</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: ALERTAS (FIRESTORE) -->
+        <section id="sec-alertas" class="dashboard-section hidden fade-in">
+            <div class="grid-layout">
+                <!-- Form Section -->
+                <div class="card form-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-bullhorn header-icon"></i>
+                        <h2>Reportar una Alerta</h2>
+                    </div>
+                    <form id="firebase-form" class="interactive-form">
+                        <div class="input-group">
+                            <label for="alert-title">Tipo de Incidente / Título</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-triangle-exclamation input-icon"></i>
+                                <input type="text" id="alert-title" placeholder="Ej. Wi-Fi sospechoso en cafetería, correo falso de banco..." required autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="alert-details">Detalles o Recomendación</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-comment input-icon"></i>
+                                <textarea id="alert-details" placeholder="Describe brevemente lo que viste y cómo otros usuarios pueden protegerse..." rows="4" required></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="btn-submit">
+                            <span class="btn-text">Publicar Alerta</span>
+                            <i class="fa-solid fa-paper-plane btn-icon"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Live Alerts List Card -->
+                <div class="card list-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-rss header-icon"></i>
+                        <h2>Alertas de la Comunidad</h2>
+                        <span id="data-counter" class="badge">0</span>
+                    </div>
+                    <div class="list-wrapper">
+                        <!-- Loading state -->
+                        <div id="loading-indicator" class="loading-state">
+                            <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+                            <p>Actualizando canal de alertas en tiempo real...</p>
+                        </div>
+                        <!-- Empty state -->
+                        <div id="empty-state" class="empty-state hidden">
+                            <i class="fa-regular fa-bell-slash empty-icon"></i>
+                            <p>No hay alertas reportadas</p>
+                            <span>¡Mantén segura a la comunidad reportando incidentes!</span>
+                        </div>
+                        <!-- Live feed -->
+                        <ul id="records-list" class="records-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>RichHack - Desarrollado para concientización en Ciberseguridad.</p>
+    </footer>
+
+    <!-- Firebase SDK & Custom Scripts -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>

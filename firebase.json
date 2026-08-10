@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "site": "therichhack-210506",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "firebase-tools",
+      "firebase-tools.log"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "auth": {
+    "providers": {
+      "anonymous": true,
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "RichHack",
+        "supportEmail": "loloricoruizz12@gmail.com",
+        "authorizedRedirectUris": [
+          "https://therichhack-210506.web.app"
+        ]
+      }
+    }
+  }
+}
