@@ -719,7 +719,7 @@ if (btnGuest) {
             })
             .catch((error) => {
                 console.error("Error de acceso anónimo:", error);
-                alert("Error al acceder como Invitado: " + (error.message || error.code));
+                handleAuthError(error);
             })
             .finally(() => {
                 btnGuest.disabled = false;
@@ -1028,6 +1028,12 @@ function handleAuthError(error) {
         case "auth/user-not-found":
         case "auth/invalid-credential":
             msg = "Usuario o contraseña incorrectos.";
+            break;
+        case "auth/operation-not-allowed":
+            msg = "El método de inicio de sesión (Correo, Invitado o Google) no está habilitado en la consola de Firebase.\n\nVe a console.firebase.google.com -> Authentication -> Sign-in method y actívalo.";
+            break;
+        case "auth/unauthorized-domain":
+            msg = "Este dominio no está en la lista de dominios autorizados en Firebase.\n\nVe a console.firebase.google.com -> Authentication -> Settings -> Authorized domains y añade este dominio.";
             break;
         case "auth/too-many-requests":
             msg = "Demasiados intentos fallidos. Espera unos minutos antes de intentar de nuevo.";
