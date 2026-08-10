@@ -179,7 +179,28 @@ function initAppDOM() {
             const targetNavBtn = document.querySelector(`.nav-btn[data-sec="${targetSec}"]`);
             if (targetNavBtn) targetNavBtn.click();
         }
+
+        // Event delegation for Google Sign In
+        const gBtn = e.target.closest("#btn-google");
+        if (gBtn) {
+            e.preventDefault();
+            handleGoogleSignIn();
+        }
+
+        // Event delegation for Guest Sign In
+        const gGuestBtn = e.target.closest("#btn-guest");
+        if (gGuestBtn) {
+            e.preventDefault();
+            handleGuestSignIn();
+        }
     });
+
+    // Submit listeners
+    const lf = document.getElementById("login-form");
+    if (lf) lf.addEventListener("submit", handleLoginSubmit);
+
+    const rf = document.getElementById("register-form");
+    if (rf) rf.addEventListener("submit", handleRegisterSubmit);
 }
 
 if (document.readyState === "loading") {
@@ -611,151 +632,139 @@ function removeChatMessage(id) {
     if (el) el.remove();
 }
 
-// --- LÓGICA DE INICIO DE SESIÓN DE FIREBASE ---
 // Auth Logic: Register User (Email/Password)
-if (registerForm) {
-    registerForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const emailInput = document.getElementById("register-email");
-        const passwordInputEl = document.getElementById("register-password");
-        const submitBtn = registerForm.querySelector("button[type='submit']");
-        if (!emailInput || !passwordInputEl) return;
-        
-        const email = emailInput.value.trim();
-        const password = passwordInputEl.value.trim();
+function handleRegisterSubmit(e) {
+    e.preventDefault();
+    const rf = document.getElementById("register-form");
+    const emailInput = document.getElementById("register-email");
+    const passwordInputEl = document.getElementById("register-password");
+    const submitBtn = rf ? rf.querySelector("button[type='submit']") : null;
+    if (!emailInput || !passwordInputEl) return;
+    
+    const email = emailInput.value.trim();
+    const password = passwordInputEl.value.trim();
 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando cuenta...</span>';
-        }
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando cuenta...</span>';
+    }
 
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                console.log("Usuario registrado con éxito:", userCredential.user.email);
-                registerForm.reset();
-            })
-            .catch((error) => {
-                console.error("Error de registro:", error);
-                handleAuthError(error);
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span class="btn-text">Crear Cuenta</span><i class="fa-solid fa-user-plus btn-icon"></i>';
-                }
-            });
-    });
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log("Usuario registrado con éxito:", userCredential.user.email);
+            if (rf) rf.reset();
+        })
+        .catch((error) => {
+            console.error("Error de registro:", error);
+            handleAuthError(error);
+        })
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="btn-text">Crear Cuenta</span><i class="fa-solid fa-user-plus btn-icon"></i>';
+            }
+        });
 }
 
 // Auth Logic: Log In (Email/Password)
-if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const emailInput = document.getElementById("login-email");
-        const passwordInputEl = document.getElementById("login-password");
-        const submitBtn = loginForm.querySelector("button[type='submit']");
-        if (!emailInput || !passwordInputEl) return;
-        
-        const email = emailInput.value.trim();
-        const password = passwordInputEl.value.trim();
+function handleLoginSubmit(e) {
+    e.preventDefault();
+    const lf = document.getElementById("login-form");
+    const emailInput = document.getElementById("login-email");
+    const passwordInputEl = document.getElementById("login-password");
+    const submitBtn = lf ? lf.querySelector("button[type='submit']") : null;
+    if (!emailInput || !passwordInputEl) return;
+    
+    const email = emailInput.value.trim();
+    const password = passwordInputEl.value.trim();
 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Entrando...</span>';
-        }
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Entrando...</span>';
+    }
 
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                console.log("Inicio de sesión exitoso:", userCredential.user.email);
-                loginForm.reset();
-            })
-            .catch((error) => {
-                console.error("Error de login:", error);
-                handleAuthError(error);
-            })
-            .finally(() => {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span class="btn-text">Iniciar Sesión</span><i class="fa-solid fa-right-to-bracket btn-icon"></i>';
-                }
-            });
-    });
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log("Inicio de sesión exitoso:", userCredential.user.email);
+            if (lf) lf.reset();
+        })
+        .catch((error) => {
+            console.error("Error de login:", error);
+            handleAuthError(error);
+        })
+        .finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="btn-text">Iniciar Sesión</span><i class="fa-solid fa-right-to-bracket btn-icon"></i>';
+            }
+        });
 }
 
 // Auth Logic: Guest Sign In (Anonymous)
-if (btnGuest) {
-    btnGuest.addEventListener("click", (e) => {
-        e.preventDefault();
-        btnGuest.disabled = true;
-        btnGuest.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Conectando...</span>';
+function handleGuestSignIn() {
+    const btnGuestEl = document.getElementById("btn-guest");
+    if (btnGuestEl) {
+        btnGuestEl.disabled = true;
+        btnGuestEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Conectando...</span>';
+    }
 
-        signInAnonymously(auth)
-            .then(() => {
-                console.log("Acceso como invitado anónimo correcto");
-            })
-            .catch((error) => {
-                console.error("Error de acceso anónimo:", error);
-                handleAuthError(error);
-            })
-            .finally(() => {
-                btnGuest.disabled = false;
-                btnGuest.innerHTML = '<span class="btn-text">Entrar como Invitado</span><i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>';
-            });
-    });
+    signInAnonymously(auth)
+        .then(() => {
+            console.log("Acceso como invitado anónimo correcto");
+        })
+        .catch((error) => {
+            console.error("Error de acceso anónimo:", error);
+            handleAuthError(error);
+        })
+        .finally(() => {
+            if (btnGuestEl) {
+                btnGuestEl.disabled = false;
+                btnGuestEl.innerHTML = '<span class="btn-text">Entrar como Invitado</span><i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>';
+            }
+        });
 }
 
 // Auth Logic: Google Sign In
-if (btnGoogle) {
-    btnGoogle.addEventListener("click", async () => {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
+async function handleGoogleSignIn() {
+    const btnGoogleEl = document.getElementById("btn-google");
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-        // Disable button to prevent double-clicks
-        btnGoogle.disabled = true;
-        const originalHTML = btnGoogle.innerHTML;
-        btnGoogle.innerHTML = '<i class="fa-solid fa-spinner fa-spin google-icon"></i><span>Conectando...</span>';
+    let originalHTML = '<i class="fa-brands fa-google google-icon"></i><span>Continuar con Google</span>';
+    if (btnGoogleEl) {
+        btnGoogleEl.disabled = true;
+        originalHTML = btnGoogleEl.innerHTML;
+        btnGoogleEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin google-icon"></i><span>Conectando...</span>';
+    }
 
-        try {
-            // Try popup first (works on most desktop browsers)
-            await signInWithPopup(auth, provider);
-            console.log("Autenticación con Google (popup) exitosa");
-        } catch (popupError) {
-            console.warn("Popup de Google falló, intentando redirect...", popupError.code);
+    try {
+        await signInWithPopup(auth, provider);
+        console.log("Autenticación con Google (popup) exitosa");
+    } catch (popupError) {
+        console.warn("Popup de Google falló, intentando redirect...", popupError.code);
 
-            // If popup was blocked or failed for a recoverable reason, fall back to redirect
-            if (
-                popupError.code === "auth/popup-blocked" ||
-                popupError.code === "auth/popup-closed-by-user" ||
-                popupError.code === "auth/cancelled-popup-request" ||
-                popupError.code === "auth/operation-not-supported-in-this-environment"
-            ) {
-                try {
-                    await signInWithRedirect(auth, provider);
-                    // Page will redirect, so no further code runs here
-                    return;
-                } catch (redirectError) {
-                    console.error("Error en redirect de Google:", redirectError);
-                    alert("No se pudo iniciar sesión con Google. Asegúrate de que tu dominio está autorizado en Firebase Authentication.");
-                }
-            } else if (popupError.code === "auth/unauthorized-domain") {
-                alert(
-                    "Este dominio no está autorizado en Firebase Authentication.\n\n" +
-                    "Para solucionarlo:\n" +
-                    "1. Ve a la consola de Firebase (console.firebase.google.com)\n" +
-                    "2. Authentication → Settings → Authorized domains\n" +
-                    "3. Añade tu dominio actual (ej. localhost, 127.0.0.1, o tu dominio de hosting)"
-                );
-            } else if (popupError.code === "auth/internal-error" || popupError.code === "auth/network-request-failed") {
-                alert("Error de conexión. Verifica tu conexión a internet e intenta de nuevo.");
-            } else {
-                alert("Error de autenticación con Google: " + (popupError.message || popupError.code));
+        if (
+            popupError.code === "auth/popup-blocked" ||
+            popupError.code === "auth/popup-closed-by-user" ||
+            popupError.code === "auth/cancelled-popup-request" ||
+            popupError.code === "auth/operation-not-supported-in-this-environment"
+        ) {
+            try {
+                await signInWithRedirect(auth, provider);
+                return;
+            } catch (redirectError) {
+                console.error("Error en redirect de Google:", redirectError);
+                handleAuthError(redirectError);
             }
-        } finally {
-            // Re-enable button
-            btnGoogle.disabled = false;
-            btnGoogle.innerHTML = originalHTML;
+        } else {
+            handleAuthError(popupError);
         }
-    });
+    } finally {
+        if (btnGoogleEl) {
+            btnGoogleEl.disabled = false;
+            btnGoogleEl.innerHTML = originalHTML;
+        }
+    }
 }
 
 // Auth Logic: Sign Out
