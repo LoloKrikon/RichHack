@@ -557,6 +557,7 @@ function showQuizScore() {
     if (qEval) qEval.textContent = evaluation;
 }
 
+const DEFAULT_GEMINI_API_KEY = atob("QUl6YVN5RHVWVUpRNklkQjJuU3FvdWVoRFpoTS1CUVVPd0xXSXQw");
 let currentAttachedImage = null; // { dataUrl, base64Data, mimeType, name }
 
 function initGeminiChatListeners() {
