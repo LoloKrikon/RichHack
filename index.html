@@ -240,7 +240,16 @@
                 <i class="fa-solid fa-newspaper title-icon"></i>
                 <h2>Noticias de Ciberseguridad</h2>
             </div>
-            <p class="news-section-desc">Últimas noticias y amenazas del mundo de la ciberseguridad, actualizadas en tiempo real.</p>
+            <div class="news-header-toolbar" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+                <p class="news-section-desc" style="margin-bottom: 0;">Últimas noticias y amenazas del mundo de la ciberseguridad en tiempo real.</p>
+                <div class="global-news-lang-bar">
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-language"></i> Traducir todas:</span>
+                    <button class="global-lang-btn active" data-lang="en" title="English (Original)">🇬🇧 EN</button>
+                    <button class="global-lang-btn" data-lang="es" title="Español">🇪🇸 ES</button>
+                    <button class="global-lang-btn" data-lang="fr" title="Français">🇫🇷 FR</button>
+                    <button class="global-lang-btn" data-lang="pt" title="Português">🇵🇹 PT</button>
+                </div>
+            </div>
 
             <!-- Loading State -->
             <div id="news-loading" class="loading-state" style="min-height: 200px;">
@@ -630,6 +639,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_lightContrastFix"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_newsTranslation"></script>
 </body>
 </html>

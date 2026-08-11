@@ -1618,8 +1618,83 @@ textarea ~ .input-icon {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     font-size: 0.75rem;
     color: var(--text-secondary);
+}
+
+/* News Translation Toolbar & Language Selectors */
+.global-news-lang-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.news-card-lang-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.global-lang-btn,
+.card-lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.45rem;
+    font-size: 0.725rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.global-lang-btn:hover,
+.card-lang-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.global-lang-btn.active,
+.card-lang-btn.active {
+    background: rgba(0, 242, 254, 0.12) !important;
+    color: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    font-weight: 600;
+}
+
+body.light-theme .global-news-lang-bar {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.light-theme .global-lang-btn,
+body.light-theme .card-lang-btn {
+    border-color: #cbd5e1 !important;
+    color: #64748b !important;
+}
+
+body.light-theme .global-lang-btn:hover,
+body.light-theme .card-lang-btn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+body.light-theme .global-lang-btn.active,
+body.light-theme .card-lang-btn.active {
+    background: #e0f2fe !important;
+    color: #0284c7 !important;
+    border-color: #0284c7 !important;
 }
 
 .news-source {

@@ -1175,6 +1175,27 @@ if (btnRetryNews) {
     });
 }
 
+// Global News Language Switcher Delegation
+document.addEventListener("click", (e) => {
+    const globalBtn = e.target.closest(".global-lang-btn");
+    if (globalBtn) {
+        e.preventDefault();
+        const targetLang = globalBtn.dataset.lang;
+        document.querySelectorAll(".global-lang-btn").forEach(b => {
+            if (b.dataset.lang === targetLang) {
+                b.classList.add("active");
+            } else {
+                b.classList.remove("active");
+            }
+        });
+
+        const cards = document.querySelectorAll(".news-card");
+        cards.forEach(card => {
+            translateNewsCard(card, targetLang);
+        });
+    }
+});
+
 async function loadCyberNews() {
     if (newsLoaded) return;
     if (newsLoading) newsLoading.style.display = "flex";
@@ -1219,6 +1240,96 @@ function generateNewsId(urlOrGuid) {
     return "news_" + Math.abs(hash);
 }
 
+async function translateNewsCard(card, targetLang) {
+    if (!card) return;
+    const currentLang = card.dataset.currentLang || "en";
+    if (currentLang === targetLang) return;
+
+    const titleEl = card.querySelector(".news-title");
+    const snippetEl = card.querySelector(".news-snippet");
+    if (!titleEl || !snippetEl) return;
+
+    // Update active button state on card
+    card.querySelectorAll(".card-lang-btn").forEach(btn => {
+        if (btn.dataset.lang === targetLang) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+
+    // 1. If switching back to English (Original)
+    if (targetLang === "en") {
+        titleEl.textContent = card.dataset.origTitle || "";
+        snippetEl.textContent = card.dataset.origSnippet || "";
+        card.dataset.currentLang = "en";
+        return;
+    }
+
+    // 2. Check cache
+    const cacheKey = "translated_" + targetLang;
+    if (card.dataset[cacheKey]) {
+        try {
+            const cached = JSON.parse(card.dataset[cacheKey]);
+            titleEl.textContent = cached.title;
+            snippetEl.textContent = cached.snippet;
+            card.dataset.currentLang = targetLang;
+            return;
+        } catch (e) {
+            console.error("Error parsing cached translation:", e);
+        }
+    }
+
+    // 3. Translate via Gemini API
+    const origTitle = card.dataset.origTitle || titleEl.textContent;
+    const origSnippet = card.dataset.origSnippet || snippetEl.textContent;
+
+    const prevTitleText = titleEl.textContent;
+    const prevSnippetText = snippetEl.textContent;
+    titleEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="font-size: 0.9em; margin-right: 0.4rem;"></i> Traduciendo...`;
+
+    const langNames = {
+        es: "Spanish (Español)",
+        fr: "French (Français)",
+        pt: "Portuguese (Português)"
+    };
+
+    const apiKey = localStorage.getItem("gemini_api_key") || DEFAULT_GEMINI_API_KEY;
+
+    try {
+        const promptText = `Translate the following cybersecurity news headline and snippet into ${langNames[targetLang]}. Return strictly a JSON object with keys "title" and "snippet". Headline: "${origTitle}". Snippet: "${origSnippet}".`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || "Error en la traducción.");
+
+        const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(jsonText);
+
+        if (parsed.title && parsed.snippet) {
+            titleEl.textContent = parsed.title;
+            snippetEl.textContent = parsed.snippet;
+            card.dataset[cacheKey] = JSON.stringify({ title: parsed.title, snippet: parsed.snippet });
+            card.dataset.currentLang = targetLang;
+        } else {
+            throw new Error("Respuesta de traducción no válida.");
+        }
+
+    } catch (err) {
+        console.error("Error al traducir noticia:", err);
+        titleEl.textContent = prevTitleText;
+        snippetEl.textContent = prevSnippetText;
+    }
+}
+
 function renderNewsCard(item) {
     if (!newsFeed) return;
 
@@ -1240,6 +1351,11 @@ function renderNewsCard(item) {
     let cleanText = tempDiv.textContent || tempDiv.innerText || "";
     cleanText = cleanText.trim().substring(0, 160) + "...";
 
+    // Save originals for translation
+    card.dataset.origTitle = item.title;
+    card.dataset.origSnippet = cleanText;
+    card.dataset.currentLang = "en";
+
     // Format date
     let dateStr = "";
     if (item.pubDate) {
@@ -1254,6 +1370,12 @@ function renderNewsCard(item) {
         <div class="news-card-body">
             <div class="news-meta">
                 <span class="news-source"><i class="fa-solid fa-rss"></i> The Hacker News</span>
+                <div class="news-card-lang-tools">
+                    <button class="card-lang-btn active" data-lang="en" title="English (Original)">🇬🇧 EN</button>
+                    <button class="card-lang-btn" data-lang="es" title="Español">🇪🇸 ES</button>
+                    <button class="card-lang-btn" data-lang="fr" title="Français">🇫🇷 FR</button>
+                    <button class="card-lang-btn" data-lang="pt" title="Português">🇵🇹 PT</button>
+                </div>
                 <span class="news-date">${dateStr}</span>
             </div>
             <h3 class="news-title">${escapeHTML(item.title)}</h3>
@@ -1282,6 +1404,15 @@ function renderNewsCard(item) {
     `;
 
     newsFeed.appendChild(card);
+
+    // Card Language Switcher listeners
+    card.querySelectorAll(".card-lang-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetLang = btn.dataset.lang;
+            translateNewsCard(card, targetLang);
+        });
+    });
 
     // Toggle comments handler
     const btnComments = card.querySelector(".btn-news-comments");
