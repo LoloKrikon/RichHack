@@ -477,25 +477,6 @@
                 </form>
             </div>
 
-            <!-- Gemini Key Setup Overlay inside tab (glowing card if key is missing) -->
-            <div id="gemini-key-overlay" class="gemini-key-overlay hidden">
-                <div class="card key-setup-card">
-                    <i class="fa-solid fa-key key-large-icon"></i>
-                    <h3 style="margin-bottom: 0.5rem; text-align: center;">Configurar Asistente IA</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">Para conversar con el chatbot, necesitas una API Key de Google Gemini. Consíguela de forma <strong>100% gratuita</strong> en segundos:</p>
-                    <ol class="key-steps">
-                        <li>Ve a **[Google AI Studio](https://aistudio.google.com/)** e inicia sesión con tu cuenta de Google.</li>
-                        <li>Haz clic en el botón **"Get API key"** y crea una clave nueva.</li>
-                        <li>Pégala aquí abajo. Quedará guardada de forma segura únicamente en tu navegador.</li>
-                    </ol>
-                    <form id="gemini-key-form" class="interactive-form mt-2">
-                        <div class="input-group">
-                            <input type="text" id="gemini-key-input" placeholder="Pega tu API Key (AIzaSy...)" required autocomplete="off" style="padding: 0.8rem 1rem;">
-                        </div>
-                        <button type="submit" class="btn-submit" style="width: 100%;">Guardar y Conectar Chat</button>
-                    </form>
-                </div>
-            </div>
         </section>
 
         <!-- SECTION 6: ALERTAS (FIRESTORE) -->
@@ -609,6 +590,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_eyeToggle"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_globalGemini"></script>
 </body>
 </html>

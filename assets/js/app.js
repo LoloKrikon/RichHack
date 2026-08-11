@@ -557,27 +557,12 @@ function showQuizScore() {
     if (qEval) qEval.textContent = evaluation;
 }
 
+const DEFAULT_GEMINI_API_KEY = "AIzaSyC5RcIolP8DtgCV53kKcQJmZ_H6wBn13L4";
+
 function initGeminiChatListeners() {
-    const kOverlay = document.getElementById("gemini-key-overlay");
-    const kForm = document.getElementById("gemini-key-form");
-    const kInput = document.getElementById("gemini-key-input");
     const cClear = document.getElementById("btn-clear-chat");
     const cForm = document.getElementById("chat-form");
     const cInput = document.getElementById("chat-input");
-
-    if (kForm) {
-        kForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            if (kInput) {
-                const key = kInput.value.trim();
-                if (key) {
-                    localStorage.setItem("gemini_api_key", key);
-                    kInput.value = "";
-                    if (kOverlay) kOverlay.classList.add("hidden");
-                }
-            }
-        });
-    }
 
     if (cClear) {
         cClear.addEventListener("click", () => {
@@ -602,11 +587,7 @@ function initGeminiChatListeners() {
             const messageText = cInput.value.trim();
             if (!messageText) return;
 
-            const apiKey = localStorage.getItem("gemini_api_key");
-            if (!apiKey) {
-                checkGeminiKey();
-                return;
-            }
+            const apiKey = localStorage.getItem("gemini_api_key") || DEFAULT_GEMINI_API_KEY;
 
             appendChatMessage(messageText, "user");
             cInput.value = "";
@@ -614,7 +595,7 @@ function initGeminiChatListeners() {
             const botLoadingId = appendChatMessage("Escribiendo...", "bot", true);
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -626,12 +607,6 @@ function initGeminiChatListeners() {
                 removeChatMessage(botLoadingId);
 
                 if (!response.ok) {
-                    if (response.status === 400 || response.status === 403) {
-                        localStorage.removeItem("gemini_api_key");
-                        checkGeminiKey();
-                        alert("API Key inválida o expirada. Por favor introduce una clave Gemini válida.");
-                        return;
-                    }
                     throw new Error(data.error?.message || "Error al conectar con la IA.");
                 }
 
@@ -648,15 +623,7 @@ function initGeminiChatListeners() {
 }
 
 function checkGeminiKey() {
-    const key = localStorage.getItem("gemini_api_key");
-    const kOverlay = document.getElementById("gemini-key-overlay");
-    if (kOverlay) {
-        if (key) {
-            kOverlay.classList.add("hidden");
-        } else {
-            kOverlay.classList.remove("hidden");
-        }
-    }
+    // No-op: API key is pre-configured for all users
 }
 
 function appendChatMessage(text, sender, isLoading = false) {
