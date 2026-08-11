@@ -22,7 +22,8 @@ import {
     orderBy, 
     limit, 
     deleteDoc, 
-    doc 
+    doc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
     getAuth,
@@ -34,7 +35,8 @@ import {
     getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
-    signOut
+    signOut,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // --- CONFIGURACIÓN DE FIREBASE ---
@@ -218,6 +220,7 @@ function initAppDOM() {
     if (rf) rf.addEventListener("submit", handleRegisterSubmit);
 
     // Module listeners
+    initRegisterPasswordValidation();
     initChecklistListeners();
     initPasswordMeter();
     initQuizListeners();
@@ -690,38 +693,123 @@ function removeChatMessage(id) {
     if (el) el.remove();
 }
 
+// Real-time Registration Password Requirements Validation
+function initRegisterPasswordValidation() {
+    const regPass = document.getElementById("register-password");
+    if (!regPass) return;
+
+    regPass.addEventListener("input", () => {
+        const val = regPass.value;
+        const reqLength = document.getElementById("req-length");
+        const reqUpper = document.getElementById("req-uppercase");
+        const reqNum = document.getElementById("req-number");
+
+        const hasLen = val.length >= 8;
+        const hasUpper = /[A-Z]/.test(val);
+        const hasNum = /[0-9]/.test(val);
+
+        if (reqLength) {
+            reqLength.style.color = hasLen ? "#22c55e" : "#ef4444";
+            reqLength.innerHTML = `<i class="fa-solid ${hasLen ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Mínimo 8 caracteres`;
+        }
+
+        if (reqUpper) {
+            reqUpper.style.color = hasUpper ? "#22c55e" : "#ef4444";
+            reqUpper.innerHTML = `<i class="fa-solid ${hasUpper ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Al menos una letra mayúscula (A-Z)`;
+        }
+
+        if (reqNum) {
+            reqNum.style.color = hasNum ? "#22c55e" : "#ef4444";
+            reqNum.innerHTML = `<i class="fa-solid ${hasNum ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Al menos un número (0-9)`;
+        }
+    });
+}
+
 // Auth Logic: Register User (Email/Password)
-function handleRegisterSubmit(e) {
+async function handleRegisterSubmit(e) {
     e.preventDefault();
     const rf = document.getElementById("register-form");
+    const apodoInput = document.getElementById("register-apodo");
+    const nombreInput = document.getElementById("register-nombre");
+    const apellidosInput = document.getElementById("register-apellidos");
+    const fnacInput = document.getElementById("register-fecha-nacimiento");
     const emailInput = document.getElementById("register-email");
     const passwordInputEl = document.getElementById("register-password");
     const submitBtn = rf ? rf.querySelector("button[type='submit']") : null;
-    if (!emailInput || !passwordInputEl) return;
-    
+
+    if (!apodoInput || !nombreInput || !apellidosInput || !fnacInput || !emailInput || !passwordInputEl) return;
+
+    const apodo = apodoInput.value.trim();
+    const nombre = nombreInput.value.trim();
+    const apellidos = apellidosInput.value.trim();
+    const fechaNacimiento = fnacInput.value;
     const email = emailInput.value.trim();
-    const password = passwordInputEl.value.trim();
+    const password = passwordInputEl.value;
+
+    // Strict Password Rules: 8+ chars, 1+ uppercase, 1+ number
+    if (password.length < 8) {
+        alert("Requisito incumplido: La contraseña debe tener al menos 8 caracteres.");
+        passwordInputEl.focus();
+        return;
+    }
+    if (!/[A-Z]/.test(password)) {
+        alert("Requisito incumplido: La contraseña debe tener al menos una letra mayúscula (A-Z).");
+        passwordInputEl.focus();
+        return;
+    }
+    if (!/[0-9]/.test(password)) {
+        alert("Requisito incumplido: La contraseña debe tener al menos un número (0-9).");
+        passwordInputEl.focus();
+        return;
+    }
+
+    if (apodo.length < 2 || apodo.length > 30) {
+        alert("El apodo / alias debe tener entre 2 y 30 caracteres.");
+        apodoInput.focus();
+        return;
+    }
 
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando cuenta...</span>';
     }
 
-    createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            console.log("Usuario registrado con éxito:", userCredential.user.email);
-            if (rf) rf.reset();
-        })
-        .catch((error) => {
-            console.error("Error de registro:", error);
-            handleAuthError(error);
-        })
-        .finally(() => {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="btn-text">Crear Cuenta</span><i class="fa-solid fa-user-plus btn-icon"></i>';
-            }
+    try {
+        if (auth.currentUser) {
+            await signOut(auth);
+        }
+
+        // 1. Create User in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // 2. Set Public Apodo as DisplayName in Firebase Auth
+        await updateProfile(user, {
+            displayName: apodo
         });
+
+        // 3. Store Private Data in Firestore 'usuarios' collection
+        await setDoc(doc(db, "usuarios", user.uid), {
+            apodo: apodo,
+            nombre: nombre,
+            apellidos: apellidos,
+            fechaNacimiento: fechaNacimiento,
+            email: email,
+            creadoEn: serverTimestamp()
+        });
+
+        console.log("Cuenta creada y perfil privado registrado con éxito:", apodo);
+        if (rf) rf.reset();
+
+    } catch (error) {
+        console.error("Error de registro:", error);
+        handleAuthError(error);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="btn-text">Crear Cuenta</span><i class="fa-solid fa-user-plus btn-icon"></i>';
+        }
+    }
 }
 
 // Auth Logic: Log In (Email/Password)

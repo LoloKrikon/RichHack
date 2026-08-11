@@ -61,19 +61,60 @@
             <!-- Register Form (hidden initially) -->
             <form id="register-form" class="auth-form tab-content hidden">
                 <div class="input-group">
+                    <label for="register-apodo">Apodo / Alias (Público)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-at input-icon"></i>
+                        <input type="text" id="register-apodo" placeholder="ej. ShadowHacker" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="input-row" style="display: flex; gap: 0.75rem;">
+                    <div class="input-group" style="flex: 1;">
+                        <label for="register-nombre">Nombre (Privado)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text" id="register-nombre" placeholder="Nombre" required autocomplete="given-name">
+                        </div>
+                    </div>
+                    <div class="input-group" style="flex: 1;">
+                        <label for="register-apellidos">Apellidos (Privado)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input type="text" id="register-apellidos" placeholder="Apellidos" required autocomplete="family-name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="register-fecha-nacimiento">Fecha de Nacimiento (Privada)</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <input type="date" id="register-fecha-nacimiento" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
                     <label for="register-email">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <i class="fa-regular fa-envelope input-icon"></i>
                         <input type="email" id="register-email" placeholder="ejemplo@correo.com" required autocomplete="email">
                     </div>
                 </div>
+
                 <div class="input-group">
-                    <label for="register-password">Contraseña</label>
+                    <label for="register-password">Contraseña Segura</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" id="register-password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+                        <input type="password" id="register-password" placeholder="Define tu clave segura" required autocomplete="new-password">
+                    </div>
+                    <div class="password-reqs-box" style="margin-top: 0.5rem; font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-weight: 600; margin-bottom: 0.3rem; color: #a1a1aa;">Requisitos de la contraseña:</div>
+                        <div id="req-length" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 8 caracteres</div>
+                        <div id="req-uppercase" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Al menos una letra mayúscula (A-Z)</div>
+                        <div id="req-number" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Al menos un número (0-9)</div>
                     </div>
                 </div>
+
                 <button type="submit" class="btn-submit">
                     <span class="btn-text">Crear Cuenta</span>
                     <i class="fa-solid fa-user-plus btn-icon"></i>
@@ -538,6 +579,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_sessionSwap"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_profileFields"></script>
 </body>
 </html>
