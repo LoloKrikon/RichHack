@@ -1667,7 +1667,6 @@ const I18N_DICTIONARY = {
         footer_text: "RichHack - Desenvolvido para a Consciencialização em Cibersegurança."
     }
 };
-};
 
 let currentSiteLang = localStorage.getItem("richhack_site_lang") || "es";
 
