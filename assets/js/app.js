@@ -1176,11 +1176,14 @@ if (btnRetryNews) {
 }
 
 // Global News Language Switcher Delegation
+let currentGlobalNewsLang = "en";
+
 document.addEventListener("click", (e) => {
     const globalBtn = e.target.closest(".global-lang-btn");
     if (globalBtn) {
         e.preventDefault();
         const targetLang = globalBtn.dataset.lang;
+        currentGlobalNewsLang = targetLang;
         document.querySelectorAll(".global-lang-btn").forEach(b => {
             if (b.dataset.lang === targetLang) {
                 b.classList.add("active");
@@ -1222,6 +1225,13 @@ async function loadCyberNews() {
         });
 
         newsLoaded = true;
+
+        if (currentGlobalNewsLang !== "en") {
+            const cards = document.querySelectorAll(".news-card");
+            cards.forEach(card => {
+                translateNewsCard(card, currentGlobalNewsLang);
+            });
+        }
     } catch (err) {
         console.error("Error cargando noticias:", err);
         if (newsLoading) newsLoading.style.display = "none";
@@ -1248,15 +1258,6 @@ async function translateNewsCard(card, targetLang) {
     const titleEl = card.querySelector(".news-title");
     const snippetEl = card.querySelector(".news-snippet");
     if (!titleEl || !snippetEl) return;
-
-    // Update active button state on card
-    card.querySelectorAll(".card-lang-btn").forEach(btn => {
-        if (btn.dataset.lang === targetLang) {
-            btn.classList.add("active");
-        } else {
-            btn.classList.remove("active");
-        }
-    });
 
     // 1. If switching back to English (Original)
     if (targetLang === "en") {
@@ -1370,12 +1371,6 @@ function renderNewsCard(item) {
         <div class="news-card-body">
             <div class="news-meta">
                 <span class="news-source"><i class="fa-solid fa-rss"></i> The Hacker News</span>
-                <div class="news-card-lang-tools">
-                    <button class="card-lang-btn active" data-lang="en" title="English (Original)">🇬🇧 EN</button>
-                    <button class="card-lang-btn" data-lang="es" title="Español">🇪🇸 ES</button>
-                    <button class="card-lang-btn" data-lang="fr" title="Français">🇫🇷 FR</button>
-                    <button class="card-lang-btn" data-lang="pt" title="Português">🇵🇹 PT</button>
-                </div>
                 <span class="news-date">${dateStr}</span>
             </div>
             <h3 class="news-title">${escapeHTML(item.title)}</h3>
@@ -1404,15 +1399,6 @@ function renderNewsCard(item) {
     `;
 
     newsFeed.appendChild(card);
-
-    // Card Language Switcher listeners
-    card.querySelectorAll(".card-lang-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            const targetLang = btn.dataset.lang;
-            translateNewsCard(card, targetLang);
-        });
-    });
 
     // Toggle comments handler
     const btnComments = card.querySelector(".btn-news-comments");
