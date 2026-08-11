@@ -557,21 +557,79 @@ function showQuizScore() {
     if (qEval) qEval.textContent = evaluation;
 }
 
-const DEFAULT_GEMINI_API_KEY = atob("QUl6YVN5RHVWVUpRNklkQjJuU3FvdWVoRFpoTS1CUVVPd0xXSXQw");
+let currentAttachedImage = null; // { dataUrl, base64Data, mimeType, name }
 
 function initGeminiChatListeners() {
     const cClear = document.getElementById("btn-clear-chat");
     const cForm = document.getElementById("chat-form");
     const cInput = document.getElementById("chat-input");
+    const cFileInput = document.getElementById("chat-file-input");
+    const cBtnAttach = document.getElementById("btn-attach-img");
+    const cImgPreview = document.getElementById("chat-img-preview");
+    const cImgPreviewSrc = document.getElementById("chat-img-preview-src");
+    const cImgPreviewName = document.getElementById("chat-img-preview-name");
+    const cBtnRemoveImg = document.getElementById("btn-remove-chat-img");
+
+    if (cBtnAttach && cFileInput) {
+        cBtnAttach.addEventListener("click", () => cFileInput.click());
+    }
+
+    if (cFileInput) {
+        cFileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Por favor, selecciona un archivo de imagen (PNG, JPG, WEBP, etc.).");
+                cFileInput.value = "";
+                return;
+            }
+
+            if (file.size > 8 * 1024 * 1024) {
+                alert("La imagen es demasiado grande. El tamaño máximo es 8MB.");
+                cFileInput.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const dataUrl = evt.target.result;
+                const base64Data = dataUrl.split(",")[1];
+                currentAttachedImage = {
+                    dataUrl: dataUrl,
+                    base64Data: base64Data,
+                    mimeType: file.type,
+                    name: file.name
+                };
+
+                if (cImgPreviewSrc) cImgPreviewSrc.src = dataUrl;
+                if (cImgPreviewName) cImgPreviewName.textContent = file.name;
+                if (cImgPreview) cImgPreview.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function clearAttachedImage() {
+        currentAttachedImage = null;
+        if (cFileInput) cFileInput.value = "";
+        if (cImgPreviewSrc) cImgPreviewSrc.src = "";
+        if (cImgPreview) cImgPreview.classList.add("hidden");
+    }
+
+    if (cBtnRemoveImg) {
+        cBtnRemoveImg.addEventListener("click", clearAttachedImage);
+    }
 
     if (cClear) {
         cClear.addEventListener("click", () => {
+            clearAttachedImage();
             const cMsgs = document.getElementById("chat-messages");
             if (cMsgs) {
                 cMsgs.innerHTML = `
                     <div class="chat-message bot">
                         <div class="message-bubble">
-                            ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.
+                            ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o adjuntar capturas de pantalla de mensajes o correos sospechosos para que los analice.
                         </div>
                     </div>
                 `;
@@ -582,25 +640,53 @@ function initGeminiChatListeners() {
     if (cForm) {
         cForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            if (!cInput) return;
             
-            const messageText = cInput.value.trim();
-            if (!messageText) return;
+            const messageText = cInput ? cInput.value.trim() : "";
+            const imageToSend = currentAttachedImage;
+
+            if (!messageText && !imageToSend) {
+                alert("Escribe una pregunta o adjunta una captura de pantalla para consultar al asistente.");
+                return;
+            }
 
             const apiKey = localStorage.getItem("gemini_api_key") || DEFAULT_GEMINI_API_KEY;
 
-            appendChatMessage(messageText, "user");
-            cInput.value = "";
+            // Render user message in chat feed with thumbnail if attached
+            appendChatMessage(messageText, "user", false, imageToSend ? imageToSend.dataUrl : null);
+
+            // Clear input and attachment state in UI
+            if (cInput) cInput.value = "";
+            clearAttachedImage();
             
-            const botLoadingId = appendChatMessage("Escribiendo...", "bot", true);
+            const botLoadingId = appendChatMessage(imageToSend ? "Analizando imagen y mensaje..." : "Escribiendo...", "bot", true);
+
+            const systemPrompt = `Eres un asistente experto en ciberseguridad, prevención de fraudes informáticos, análisis de phishing y hacking ético para el portal educativo RichHack.
+Responde en español de forma educativa, estructurada y concisa.
+
+Instrucciones estrictas para imágenes y capturas de pantalla:
+1. Si la imagen muestra un SMS, mensaje de WhatsApp, correo electrónico, sitio web o captura de pantalla sospechosa: analízala con atención, señala indicadores de estafa (enlaces raros, faltas de ortografía, urgencia simulada o imitación de entidades conocidas) y da una recomendación clara de seguridad.
+2. Si la imagen NO tiene ninguna relación con ciberseguridad, mensajes de texto/correos, estafas informáticas ni tecnología (por ejemplo: fotos de animales, comida, personas, coches, paisajes), responde estrictamente: "Esta imagen no parece estar relacionada con ciberseguridad, estafas informáticas ni tecnología. No puedo ayudarte a analizar este tipo de contenido."`;
+
+            const promptText = messageText 
+                ? `${systemPrompt}\n\nMensaje/Pregunta del usuario: ${messageText}`
+                : `${systemPrompt}\n\nEl usuario ha adjuntado una captura de pantalla sin texto adicional. Analiza la imagen minuciosamente y determina si se trata de un intento de estafa, phishing o amenaza cibernética.`;
+
+            const parts = [];
+            if (imageToSend) {
+                parts.push({
+                    inline_data: {
+                        mime_type: imageToSend.mimeType,
+                        data: imageToSend.base64Data
+                    }
+                });
+            }
+            parts.push({ text: promptText });
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Eres un asistente experto en seguridad informática y hacking ético para el portal educativo RichHack. Responde en español de forma extremadamente clara, educativa, estructurada y concisa. Si la pregunta no guarda relación alguna con la informática, redes, hacking, ciberseguridad o tecnología, indícale amablemente que solo estás capacitado para responder dudas sobre ciberseguridad. Pregunta: ${messageText}` }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: parts }] })
                 });
 
                 let data = await response.json();
@@ -612,9 +698,7 @@ function initGeminiChatListeners() {
                         const retryRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${DEFAULT_GEMINI_API_KEY}`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                contents: [{ parts: [{ text: `Eres un asistente experto en seguridad informática y hacking ético para el portal educativo RichHack. Responde en español de forma extremadamente clara, educativa, estructurada y concisa. Si la pregunta no guarda relación alguna con la informática, redes, hacking, ciberseguridad o tecnología, indícale amablemente que solo estás capacitado para responder dudas sobre ciberseguridad. Pregunta: ${messageText}` }] }]
-                            })
+                            body: JSON.stringify({ contents: [{ parts: parts }] })
                         });
                         if (retryRes.ok) {
                             const retryData = await retryRes.json();
@@ -642,7 +726,7 @@ function checkGeminiKey() {
     // No-op: API key is pre-configured for all users
 }
 
-function appendChatMessage(text, sender, isLoading = false) {
+function appendChatMessage(text, sender, isLoading = false, imageUrl = null) {
     const cMsgs = document.getElementById("chat-messages");
     if (!cMsgs) return "";
     const id = "msg-" + Math.random().toString(36).substr(2, 9);
@@ -650,19 +734,29 @@ function appendChatMessage(text, sender, isLoading = false) {
     msgDiv.className = `chat-message ${sender}`;
     msgDiv.id = id;
 
-    // Convertir saltos de línea y formateo markdown sencillo
-    let formattedText = escapeHTML(text);
-    if (!isLoading) {
+    let imageHTML = "";
+    if (imageUrl) {
+        imageHTML = `<img src="${imageUrl}" alt="Captura adjunta" class="chat-msg-img">`;
+    }
+
+    let formattedText = escapeHTML(text || "");
+    if (!isLoading && formattedText) {
         formattedText = formattedText
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/`([^`]+)`/g, '<code style="background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px;">$1</code>')
             .replace(/\n/g, '<br>');
-    } else {
-        formattedText = '<span style="opacity: 0.5;">Escribiendo... <i class="fa-solid fa-ellipsis fa-bounce"></i></span>';
     }
 
-    msgDiv.innerHTML = `<div class="message-bubble">${formattedText}</div>`;
+    const bubbleDiv = document.createElement("div");
+    bubbleDiv.className = "message-bubble";
+    if (isLoading) {
+        bubbleDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${formattedText}`;
+    } else {
+        bubbleDiv.innerHTML = `${imageHTML}${formattedText}`;
+    }
+
+    msgDiv.appendChild(bubbleDiv);
     cMsgs.appendChild(msgDiv);
     
     // Auto scroll al final

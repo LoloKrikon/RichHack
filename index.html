@@ -492,9 +492,22 @@
                     </div>
                 </div>
 
+                <!-- Attached Image Preview Container -->
+                <div id="chat-img-preview" class="chat-img-preview hidden">
+                    <div class="preview-thumb-wrapper">
+                        <img id="chat-img-preview-src" src="" alt="Vista previa">
+                        <button type="button" id="btn-remove-chat-img" class="btn-remove-img" title="Quitar imagen">&times;</button>
+                    </div>
+                    <span id="chat-img-preview-name" class="preview-img-name">captura.png</span>
+                </div>
+
                 <!-- Chat Input area -->
                 <form id="chat-form" class="chat-form">
-                    <input type="text" id="chat-input" placeholder="Pregúntame sobre ciberseguridad..." required autocomplete="off" data-i18n-ph="chat_ph">
+                    <input type="file" id="chat-file-input" accept="image/*" class="hidden">
+                    <button type="button" id="btn-attach-img" class="btn-chat-attach" title="Adjuntar captura de pantalla o imagen">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="chat-input" placeholder="Pregúntame o adjunta una captura de pantalla..." autocomplete="off" data-i18n-ph="chat_ph">
                     <button type="submit" class="btn-chat-send" id="btn-chat-send">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -646,6 +659,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_newGeminiApiKey"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_multimodalChat"></script>
 </body>
 </html>
