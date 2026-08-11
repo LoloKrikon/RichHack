@@ -118,6 +118,33 @@ body {
     color: white;
 }
 
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+    z-index: 5;
+}
+
+.btn-toggle-password:hover {
+    color: var(--accent-color);
+    transform: scale(1.15);
+}
+
 .auth-form {
     display: flex;
     flex-direction: column;
