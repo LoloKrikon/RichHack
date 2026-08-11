@@ -703,6 +703,7 @@ function initRegisterPasswordValidation() {
         const reqLength = document.getElementById("req-length");
         const reqUpper = document.getElementById("req-uppercase");
         const reqNum = document.getElementById("req-number");
+        const errBanner = document.getElementById("register-error-msg");
 
         const hasLen = val.length >= 8;
         const hasUpper = /[A-Z]/.test(val);
@@ -715,12 +716,16 @@ function initRegisterPasswordValidation() {
 
         if (reqUpper) {
             reqUpper.style.color = hasUpper ? "#22c55e" : "#ef4444";
-            reqUpper.innerHTML = `<i class="fa-solid ${hasUpper ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Al menos una letra mayúscula (A-Z)`;
+            reqUpper.innerHTML = `<i class="fa-solid ${hasUpper ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Mínimo 1 letra mayúscula (A-Z)`;
         }
 
         if (reqNum) {
             reqNum.style.color = hasNum ? "#22c55e" : "#ef4444";
-            reqNum.innerHTML = `<i class="fa-solid ${hasNum ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Al menos un número (0-9)`;
+            reqNum.innerHTML = `<i class="fa-solid ${hasNum ? 'fa-circle-check' : 'fa-circle-xmark'}"></i> Mínimo 1 número (0-9)`;
+        }
+
+        if (hasLen && hasUpper && hasNum && errBanner) {
+            errBanner.classList.add("hidden");
         }
     });
 }
@@ -735,6 +740,7 @@ async function handleRegisterSubmit(e) {
     const fnacInput = document.getElementById("register-fecha-nacimiento");
     const emailInput = document.getElementById("register-email");
     const passwordInputEl = document.getElementById("register-password");
+    const errBanner = document.getElementById("register-error-msg");
     const submitBtn = rf ? rf.querySelector("button[type='submit']") : null;
 
     if (!apodoInput || !nombreInput || !apellidosInput || !fnacInput || !emailInput || !passwordInputEl) return;
@@ -746,21 +752,24 @@ async function handleRegisterSubmit(e) {
     const email = emailInput.value.trim();
     const password = passwordInputEl.value;
 
-    // Strict Password Rules: 8+ chars, 1+ uppercase, 1+ number
-    if (password.length < 8) {
-        alert("Requisito incumplido: La contraseña debe tener al menos 8 caracteres.");
+    // Strict Password Rules Validation: 8+ chars, 1+ uppercase (A-Z), 1+ number (0-9)
+    const missingReqs = [];
+    if (password.length < 8) missingReqs.push("mínimo 8 caracteres");
+    if (!/[A-Z]/.test(password)) missingReqs.push("al menos 1 letra mayúscula (A-Z)");
+    if (!/[0-9]/.test(password)) missingReqs.push("al menos 1 número (0-9)");
+
+    if (missingReqs.length > 0) {
+        const errorText = `La contraseña NO cumple los requisitos obligatorios: requiere ${missingReqs.join(", ")}.`;
+        if (errBanner) {
+            errBanner.style.display = "flex";
+            errBanner.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size: 1.1rem;"></i><span>${errorText}</span>`;
+            errBanner.classList.remove("hidden");
+        }
+        alert(errorText);
         passwordInputEl.focus();
         return;
-    }
-    if (!/[A-Z]/.test(password)) {
-        alert("Requisito incumplido: La contraseña debe tener al menos una letra mayúscula (A-Z).");
-        passwordInputEl.focus();
-        return;
-    }
-    if (!/[0-9]/.test(password)) {
-        alert("Requisito incumplido: La contraseña debe tener al menos un número (0-9).");
-        passwordInputEl.focus();
-        return;
+    } else if (errBanner) {
+        errBanner.classList.add("hidden");
     }
 
     if (apodo.length < 2 || apodo.length > 30) {

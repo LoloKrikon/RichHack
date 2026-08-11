@@ -107,13 +107,15 @@
                         <i class="fa-solid fa-lock input-icon"></i>
                         <input type="password" id="register-password" placeholder="Define tu clave segura" required autocomplete="new-password">
                     </div>
-                    <div class="password-reqs-box" style="margin-top: 0.5rem; font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="font-weight: 600; margin-bottom: 0.3rem; color: #a1a1aa;">Requisitos de la contraseña:</div>
-                        <div id="req-length" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 8 caracteres</div>
-                        <div id="req-uppercase" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Al menos una letra mayúscula (A-Z)</div>
-                        <div id="req-number" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444;"><i class="fa-solid fa-circle-xmark"></i> Al menos un número (0-9)</div>
+                    <div class="password-reqs-box" style="margin-top: 0.5rem; font-size: 0.8rem; background: rgba(0,0,0,0.25); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                        <div style="font-weight: 600; margin-bottom: 0.4rem; color: #d4d4d8;">Requisitos obligatorios de la contraseña:</div>
+                        <div id="req-length" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 8 caracteres</div>
+                        <div id="req-uppercase" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 letra mayúscula (A-Z)</div>
+                        <div id="req-number" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 número (0-9)</div>
                     </div>
                 </div>
+
+                <div id="register-error-msg" class="auth-error-banner hidden" style="color: #f87171; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.85rem; align-items: center; gap: 0.5rem;"></div>
 
                 <button type="submit" class="btn-submit">
                     <span class="btn-text">Crear Cuenta</span>
@@ -579,6 +581,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_profileFields"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_strictPasswordRules"></script>
 </body>
 </html>
