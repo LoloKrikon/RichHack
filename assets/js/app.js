@@ -1567,6 +1567,14 @@ document.addEventListener("DOMContentLoaded", () => {
     applyLanguage(currentSiteLang);
 });
 
+let currentGlobalNewsLang = "en";
+const newsTranslationCache = {
+    en: {},
+    es: {},
+    fr: {},
+    pt: {}
+};
+
 async function translateAllNews(targetLang) {
     if (currentGlobalNewsLang === targetLang) return;
 
