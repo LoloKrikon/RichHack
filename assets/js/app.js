@@ -390,7 +390,7 @@ function formatCrackTime(seconds) {
 // --- LÓGICA DEL CUESTIONARIO (QUIZ) ---
 const quizQuestions = [
     {
-        q: "@Cuál de las siguientes es la práctica más segura para gestionar tus contraseñas?",
+        q: "¿Cuál de las siguientes es la práctica más segura para gestionar tus contraseñas?",
         answers: [
             "Usar la misma contraseña en todos lados para no olvidarla",
             "Guardarlas en un documento Word en el escritorio",
@@ -401,7 +401,7 @@ const quizQuestions = [
         feedback: "¡Correcto! Los gestores de contraseñas guardan tus claves de forma encriptada, lo que te permite usar contraseñas aleatorias complejas para cada cuenta sin tener que memorizarlas."
     },
     {
-        q: "Recibes un correo urgente de tu banco diciendo que tu cuenta ha sido bloqueada y debes verificar tus datos en un enlace. @Qué haces?",
+        q: "Recibes un correo urgente de tu banco diciendo que tu cuenta ha sido bloqueada y debes verificar tus datos en un enlace. ¿Qué haces?",
         answers: [
             "Hacer clic en el enlace inmediatamente para solucionar la urgencia",
             "Ignorar el enlace, marcarlo como spam y contactar al banco por sus canales oficiales",
@@ -412,7 +412,7 @@ const quizQuestions = [
         feedback: "¡Exacto! Este es el patrón de un ataque de Phishing. Los bancos reales nunca piden credenciales o datos privados por medio de enlaces en correos electrónicos."
     },
     {
-        q: "Estás en una cafetería y necesitas consultar tu banco. La red Wi-Fi está abierta y se llama 'Wi-Fi_Gratis'. @Cuál es la forma más segura de conectarte?",
+        q: "Estás en una cafetería y necesitas consultar tu banco. La red Wi-Fi está abierta y se llama 'Wi-Fi_Gratis'. ¿Cuál es la forma más segura de conectarte?",
         answers: [
             "Conectarte al Wi-Fi gratis para no gastar tus datos móviles",
             "Usar tu red de datos móviles o activar una VPN de confianza antes de navegar",
@@ -423,7 +423,7 @@ const quizQuestions = [
         feedback: "¡Correcto! Las conexiones públicas abiertas son vulnerables a ataques de intercepción (Man-in-the-Middle). Usar tus datos o una VPN cifra tu tráfico de extremo a extremo."
     },
     {
-        q: "@Qué beneficio principal aporta activar el Doble Factor de Autenticación (MFA/2FA)?",
+        q: "¿Qué beneficio principal aporta activar el Doble Factor de Autenticación (MFA/2FA)?",
         answers: [
             "Acelera la velocidad de conexión a internet de tus dispositivos",
             "Evita por completo que entren virus en tu ordenador",
@@ -434,7 +434,7 @@ const quizQuestions = [
         feedback: "¡Excelente! El doble factor de autenticación requiere dos pruebas distintas de identidad. Aunque un atacante te robe la contraseña, no podrá acceder sin tu teléfono."
     },
     {
-        q: "@Qué debes hacer si tu equipo es secuestrado por un ransomware que encripta tus datos personales?",
+        q: "¿Qué debes hacer si tu equipo es secuestrado por un ransomware que encripta tus datos personales?",
         answers: [
             "Pagar la multa en criptomonedas rápidamente",
             "Formatear el equipo e instalar tus copias de seguridad limpias externas",
