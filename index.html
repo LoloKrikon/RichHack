@@ -22,10 +22,15 @@
     <!-- 1. PANTALLA DE BIENVENIDA / AUTENTICACIÓN -->
     <div id="auth-container" class="auth-container">
         <div class="card auth-card">
-            <!-- Brand Logo -->
-            <div class="logo">
-                <i class="fa-solid fa-shield-halved logo-icon"></i>
-                <h1>Rich<span>Hack</span></h1>
+            <!-- Brand Logo & Theme Toggle Header -->
+            <div class="auth-header-row" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="logo">
+                    <i class="fa-solid fa-shield-halved logo-icon"></i>
+                    <h1>Rich<span>Hack</span></h1>
+                </div>
+                <button class="btn-theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema claro/oscuro">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
             </div>
             <p class="subtitle">Aprende sobre hackeos y protégete en internet</p>
 
@@ -166,6 +171,9 @@
                         <span id="user-display-name" class="user-name">Invitado</span>
                         <span id="user-status-badge" class="user-role-badge">Sesión Activa</span>
                     </div>
+                    <button class="btn-theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema claro/oscuro">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
                     <button id="btn-logout" class="btn-logout" title="Cerrar sesión">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
@@ -544,10 +552,42 @@
         <p>RichHack - Desarrollado para concientización en Ciberseguridad.</p>
     </footer>
 
-    <!-- Immediate Inline UI Tab Switcher & Password Visibility Toggle -->
+    <!-- Immediate Inline UI Tab Switcher, Password Toggle & Theme Switcher -->
     <script>
+      (function() {
+        var savedTheme = localStorage.getItem("richhack_theme");
+        if (savedTheme === "light") {
+          document.documentElement.classList.add("light-theme");
+        }
+      })();
+
+      function updateThemeToggleIcons(isLight) {
+        var buttons = document.querySelectorAll(".btn-theme-toggle");
+        buttons.forEach(function(btn) {
+          btn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+          btn.setAttribute("title", isLight ? "Cambiar a Modo Oscuro" : "Cambiar a Modo Claro");
+        });
+      }
+
       document.addEventListener("DOMContentLoaded", function() {
+        var isLight = document.documentElement.classList.contains("light-theme") || (document.body && document.body.classList.contains("light-theme"));
+        if (isLight) {
+          if (document.body) document.body.classList.add("light-theme");
+          updateThemeToggleIcons(true);
+        }
+
         document.addEventListener("click", function(e) {
+          // Theme Toggle
+          var themeBtn = e.target.closest(".btn-theme-toggle");
+          if (themeBtn) {
+            e.preventDefault();
+            var nowLight = document.body.classList.toggle("light-theme");
+            document.documentElement.classList.toggle("light-theme", nowLight);
+            localStorage.setItem("richhack_theme", nowLight ? "light" : "dark");
+            updateThemeToggleIcons(nowLight);
+            return;
+          }
+
           // Tab switching
           var tabBtn = e.target.closest(".tab-btn");
           if (tabBtn) {
@@ -590,6 +630,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_globalGemini"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_lightTheme"></script>
 </body>
 </html>
