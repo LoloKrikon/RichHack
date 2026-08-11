@@ -900,20 +900,21 @@ function setupDashboardUI(user) {
     const ap = document.getElementById("app-container");
     const uName = document.getElementById("user-display-name");
     const uBadge = document.getElementById("user-status-badge");
+    const dict = (typeof I18N_DICTIONARY !== "undefined" && typeof currentSiteLang !== "undefined" && I18N_DICTIONARY[currentSiteLang]) ? I18N_DICTIONARY[currentSiteLang] : null;
 
     if (ac) ac.classList.add("hidden");
     if (ap) ap.classList.remove("hidden");
 
     if (user.isAnonymous) {
-        if (uName) uName.textContent = "Invitado Anónimo";
+        if (uName) uName.textContent = dict ? dict.guest_user || "Invitado Anónimo" : "Invitado Anónimo";
         if (uBadge) {
-            uBadge.textContent = "Acceso Limitado";
+            uBadge.textContent = dict ? dict.limited_access || "Acceso Limitado" : "Acceso Limitado";
             uBadge.style.color = "var(--accent-yellow)";
         }
     } else {
         if (uName) uName.textContent = user.displayName || user.email;
         if (uBadge) {
-            uBadge.textContent = user.providerData[0]?.providerId === "google.com" ? "Google Account" : "Usuario Registrado";
+            uBadge.textContent = user.providerData[0]?.providerId === "google.com" ? (dict ? dict.google_account || "Cuenta de Google" : "Google Account") : (dict ? dict.registered_user || "Usuario Registrado" : "Usuario Registrado");
             uBadge.style.color = "var(--accent-color)";
         }
     }
@@ -1525,22 +1526,18 @@ function applyLanguage(lang) {
     // Translate all elements with data-i18n
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.getAttribute("data-i18n");
-        if (dict[key]) {
-            const icon = el.querySelector("i");
-            if (icon) {
-                let hasReplaced = false;
-                el.childNodes.forEach(node => {
-                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
-                        node.textContent = " " + dict[key];
-                        hasReplaced = true;
-                    }
-                });
-                if (!hasReplaced) {
-                    el.appendChild(document.createTextNode(" " + dict[key]));
-                }
-            } else {
-                el.innerHTML = dict[key];
-            }
+        if (!dict[key]) return;
+
+        const icon = el.querySelector("i");
+        const span = el.querySelector("span");
+
+        if (icon && span) {
+            span.innerHTML = dict[key];
+        } else if (icon && !span) {
+            const iconHTML = icon.outerHTML;
+            el.innerHTML = iconHTML + " " + dict[key];
+        } else {
+            el.innerHTML = dict[key];
         }
     });
 
