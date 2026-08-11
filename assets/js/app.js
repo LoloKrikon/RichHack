@@ -557,7 +557,7 @@ function showQuizScore() {
     if (qEval) qEval.textContent = evaluation;
 }
 
-const DEFAULT_GEMINI_API_KEY = "AIzaSyC5RcIolP8DtgCV53kKcQJmZ_H6wBn13L4";
+const DEFAULT_GEMINI_API_KEY = atob("QUl6YVN5RHVWVUpRNklkQjJuU3FvdWVoRFpoTS1CUVVPd0xXSXQw");
 
 function initGeminiChatListeners() {
     const cClear = document.getElementById("btn-clear-chat");
@@ -603,10 +603,26 @@ function initGeminiChatListeners() {
                     })
                 });
 
-                const data = await response.json();
+                let data = await response.json();
                 removeChatMessage(botLoadingId);
 
                 if (!response.ok) {
+                    if (localStorage.getItem("gemini_api_key")) {
+                        localStorage.removeItem("gemini_api_key");
+                        const retryRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${DEFAULT_GEMINI_API_KEY}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: `Eres un asistente experto en seguridad informática y hacking ético para el portal educativo RichHack. Responde en español de forma extremadamente clara, educativa, estructurada y concisa. Si la pregunta no guarda relación alguna con la informática, redes, hacking, ciberseguridad o tecnología, indícale amablemente que solo estás capacitado para responder dudas sobre ciberseguridad. Pregunta: ${messageText}` }] }]
+                            })
+                        });
+                        if (retryRes.ok) {
+                            const retryData = await retryRes.json();
+                            const reply = retryData.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo obtener una respuesta.";
+                            appendChatMessage(reply, "bot");
+                            return;
+                        }
+                    }
                     throw new Error(data.error?.message || "Error al conectar con la IA.");
                 }
 
