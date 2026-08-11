@@ -22,36 +22,44 @@
     <!-- 1. PANTALLA DE BIENVENIDA / AUTENTICACIÓN -->
     <div id="auth-container" class="auth-container">
         <div class="card auth-card">
-            <!-- Brand Logo & Theme Toggle Header -->
-            <div class="auth-header-row" style="display: flex; justify-content: space-between; align-items: center;">
+            <!-- Brand Logo, Language Selector & Theme Toggle Header -->
+            <div class="auth-header-row" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                 <div class="logo">
                     <i class="fa-solid fa-shield-halved logo-icon"></i>
                     <h1>Rich<span>Hack</span></h1>
                 </div>
-                <button class="btn-theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema claro/oscuro">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <select class="site-lang-select" title="Seleccionar idioma">
+                        <option value="es">🇪🇸 ES</option>
+                        <option value="en">🇬🇧 EN</option>
+                        <option value="fr">🇫🇷 FR</option>
+                        <option value="pt">🇵🇹 PT</option>
+                    </select>
+                    <button class="btn-theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema claro/oscuro">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
             </div>
-            <p class="subtitle">Aprende sobre hackeos y protégete en internet</p>
+            <p class="subtitle" data-i18n="auth_subtitle">Aprende sobre hackeos y protégete en internet</p>
 
             <!-- Tabs selector -->
             <div class="auth-tabs">
-                <button class="tab-btn active" data-tab="login">Entrar</button>
-                <button class="tab-btn" data-tab="register">Registrarse</button>
-                <button class="tab-btn" data-tab="guest">Invitado</button>
+                <button class="tab-btn active" data-tab="login" data-i18n="tab_entrar">Entrar</button>
+                <button class="tab-btn" data-tab="register" data-i18n="tab_registrar">Registrarse</button>
+                <button class="tab-btn" data-tab="guest" data-i18n="tab_invitado">Invitado</button>
             </div>
 
             <!-- Login Form -->
             <form id="login-form" class="auth-form tab-content">
                 <div class="input-group">
-                    <label for="login-email">Correo Electrónico</label>
+                    <label for="login-email" data-i18n="lbl_email">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <i class="fa-regular fa-envelope input-icon"></i>
                         <input type="email" id="login-email" placeholder="ejemplo@correo.com" required autocomplete="email">
                     </div>
                 </div>
                 <div class="input-group">
-                    <label for="login-password">Contraseña</label>
+                    <label for="login-password" data-i18n="lbl_password">Contraseña</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock input-icon"></i>
                         <input type="password" id="login-password" placeholder="Tu contraseña" required autocomplete="current-password" style="padding-right: 2.5rem;">
@@ -61,7 +69,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn-submit">
-                    <span class="btn-text">Iniciar Sesión</span>
+                    <span class="btn-text" data-i18n="btn_login">Iniciar Sesión</span>
                     <i class="fa-solid fa-right-to-bracket btn-icon"></i>
                 </button>
             </form>
@@ -69,7 +77,7 @@
             <!-- Register Form (hidden initially) -->
             <form id="register-form" class="auth-form tab-content hidden">
                 <div class="input-group">
-                    <label for="register-apodo">Apodo / Alias (Público)</label>
+                    <label for="register-apodo" data-i18n="lbl_apodo">Apodo / Alias (Público)</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-at input-icon"></i>
                         <input type="text" id="register-apodo" placeholder="ej. ShadowHacker" required autocomplete="username">
@@ -78,14 +86,14 @@
 
                 <div class="input-row" style="display: flex; gap: 0.75rem;">
                     <div class="input-group" style="flex: 1;">
-                        <label for="register-nombre">Nombre (Privado)</label>
+                        <label for="register-nombre" data-i18n="lbl_nombre">Nombre (Privado)</label>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-user input-icon"></i>
                             <input type="text" id="register-nombre" placeholder="Nombre" required autocomplete="given-name">
                         </div>
                     </div>
                     <div class="input-group" style="flex: 1;">
-                        <label for="register-apellidos">Apellidos (Privado)</label>
+                        <label for="register-apellidos" data-i18n="lbl_apellidos">Apellidos (Privado)</label>
                         <div class="input-wrapper">
                             <i class="fa-regular fa-user input-icon"></i>
                             <input type="text" id="register-apellidos" placeholder="Apellidos" required autocomplete="family-name">
@@ -94,7 +102,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="register-fecha-nacimiento">Fecha de Nacimiento (Privada)</label>
+                    <label for="register-fecha-nacimiento" data-i18n="lbl_fecha_nac">Fecha de Nacimiento (Privada)</label>
                     <div class="input-wrapper">
                         <i class="fa-regular fa-calendar input-icon"></i>
                         <input type="date" id="register-fecha-nacimiento" required>
@@ -102,7 +110,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="register-email">Correo Electrónico</label>
+                    <label for="register-email" data-i18n="lbl_email">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <i class="fa-regular fa-envelope input-icon"></i>
                         <input type="email" id="register-email" placeholder="ejemplo@correo.com" required autocomplete="email">
@@ -110,7 +118,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="register-password">Contraseña Segura</label>
+                    <label for="register-password" data-i18n="lbl_pass_secure">Contraseña Segura</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock input-icon"></i>
                         <input type="password" id="register-password" placeholder="Define tu clave segura" required autocomplete="new-password" style="padding-right: 2.5rem;">
@@ -119,17 +127,17 @@
                         </button>
                     </div>
                     <div class="password-reqs-box" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.6rem 0.8rem; border-radius: 8px;">
-                        <div style="font-weight: 600; margin-bottom: 0.4rem;">Requisitos obligatorios de la contraseña:</div>
-                        <div id="req-length" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 8 caracteres</div>
-                        <div id="req-uppercase" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 letra mayúscula (A-Z)</div>
-                        <div id="req-number" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 número (0-9)</div>
+                        <div style="font-weight: 600; margin-bottom: 0.4rem;" data-i18n="reqs_title">Requisitos obligatorios de la contraseña:</div>
+                        <div id="req-length" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;" data-i18n="req_len"><i class="fa-solid fa-circle-xmark"></i> Mínimo 8 caracteres</div>
+                        <div id="req-uppercase" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;" data-i18n="req_upper"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 letra mayúscula (A-Z)</div>
+                        <div id="req-number" class="req-item invalid" style="display: flex; align-items: center; gap: 0.4rem; color: #ef4444; font-weight: 500;" data-i18n="req_num"><i class="fa-solid fa-circle-xmark"></i> Mínimo 1 número (0-9)</div>
                     </div>
                 </div>
 
                 <div id="register-error-msg" class="auth-error-banner hidden" style="color: #f87171; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.85rem; align-items: center; gap: 0.5rem;"></div>
 
                 <button type="submit" class="btn-submit">
-                    <span class="btn-text">Crear Cuenta</span>
+                    <span class="btn-text" data-i18n="btn_register">Crear Cuenta</span>
                     <i class="fa-solid fa-user-plus btn-icon"></i>
                 </button>
             </form>
@@ -138,21 +146,21 @@
             <div id="guest-form" class="auth-form tab-content hidden">
                 <div class="guest-info">
                     <i class="fa-solid fa-user-secret guest-icon"></i>
-                    <p>Accede de forma anónima para leer la información de ciberseguridad y ver las alertas comunitarias.</p>
+                    <p data-i18n="guest_text">Accede de forma anónima para leer la información de ciberseguridad y ver las alertas comunitarias.</p>
                 </div>
                 <button id="btn-guest" class="btn-submit btn-secondary">
-                    <span class="btn-text">Entrar como Invitado</span>
+                    <span class="btn-text" data-i18n="btn_guest">Entrar como Invitado</span>
                     <i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>
                 </button>
             </div>
 
             <!-- Social Logins (Google) -->
             <div class="social-divider">
-                <span>O accede de forma rápida</span>
+                <span data-i18n="social_divider">O accede de forma rápida</span>
             </div>
             <button id="btn-google" class="btn-google">
                 <i class="fa-brands fa-google google-icon"></i>
-                <span>Continuar con Google</span>
+                <span data-i18n="btn_google">Continuar con Google</span>
             </button>
         </div>
     </div>
@@ -169,8 +177,14 @@
                 <div class="user-profile">
                     <div class="user-meta">
                         <span id="user-display-name" class="user-name">Invitado</span>
-                        <span id="user-status-badge" class="user-role-badge">Sesión Activa</span>
+                        <span id="user-status-badge" class="user-role-badge" data-i18n="status_active">Sesión Activa</span>
                     </div>
+                    <select class="site-lang-select" title="Seleccionar idioma">
+                        <option value="es">🇪🇸 ES</option>
+                        <option value="en">🇬🇧 EN</option>
+                        <option value="fr">🇫🇷 FR</option>
+                        <option value="pt">🇵🇹 PT</option>
+                    </select>
                     <button class="btn-theme-toggle" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema claro/oscuro">
                         <i class="fa-solid fa-moon"></i>
                     </button>
@@ -182,25 +196,25 @@
             
             <!-- Interactive Navigation Bar -->
             <nav class="dashboard-nav">
-                <button class="nav-btn active" data-sec="inicio">
+                <button class="nav-btn active" data-sec="inicio" data-i18n="nav_inicio">
                     <i class="fa-solid fa-house"></i> <span>Inicio</span>
                 </button>
-                <button class="nav-btn" data-sec="noticias">
+                <button class="nav-btn" data-sec="noticias" data-i18n="nav_noticias">
                     <i class="fa-solid fa-newspaper"></i> <span>Noticias</span>
                 </button>
-                <button class="nav-btn" data-sec="ataques">
+                <button class="nav-btn" data-sec="ataques" data-i18n="nav_ataques">
                     <i class="fa-solid fa-bug"></i> <span>Ataques</span>
                 </button>
-                <button class="nav-btn" data-sec="proteccion">
+                <button class="nav-btn" data-sec="proteccion" data-i18n="nav_proteccion">
                     <i class="fa-solid fa-user-shield"></i> <span>Protección</span>
                 </button>
-                <button class="nav-btn" data-sec="herramientas">
+                <button class="nav-btn" data-sec="herramientas" data-i18n="nav_herramientas">
                     <i class="fa-solid fa-screwdriver-wrench"></i> <span>Herramientas</span>
                 </button>
-                <button class="nav-btn" data-sec="asistente">
+                <button class="nav-btn" data-sec="asistente" data-i18n="nav_asistente">
                     <i class="fa-solid fa-robot"></i> <span>Asistente IA</span>
                 </button>
-                <button class="nav-btn" data-sec="alertas">
+                <button class="nav-btn" data-sec="alertas" data-i18n="nav_alertas">
                     <i class="fa-solid fa-bullhorn"></i> <span>Alertas</span>
                 </button>
             </nav>
@@ -212,18 +226,18 @@
         <section id="sec-inicio" class="dashboard-section fade-in">
             <div class="welcome-card">
                 <div class="welcome-text">
-                    <h2>Bienvenido al Portal de Seguridad</h2>
-                    <p class="welcome-desc">Internet está lleno de oportunidades, pero también de amenazas invisibles. En RichHack, nos dedicamos a educar sobre las técnicas utilizadas por los atacantes cibernéticos y las medidas fundamentales que puedes tomar para mantener a salvo tu identidad y tu información.</p>
-                    <p class="welcome-subdesc">Explora las secciones interactivas para aprender sobre ataques populares, checklists de seguridad o para reportar incidentes que hayas observado a la comunidad en tiempo real.</p>
+                    <h2 data-i18n="welcome_title">Bienvenido al Portal de Seguridad</h2>
+                    <p class="welcome-desc" data-i18n="welcome_desc">Internet está lleno de oportunidades, pero también de amenazas invisibles. En RichHack, nos dedicamos a educar sobre las técnicas utilizadas por los atacantes cibernéticos y las medidas fundamentales que puedes tomar para mantener a salvo tu identidad y tu información.</p>
+                    <p class="welcome-subdesc" data-i18n="welcome_subdesc">Explora las secciones interactivas para aprender sobre ataques populares, checklists de seguridad o para reportar incidentes que hayas observado a la comunidad en tiempo real.</p>
                     
                     <div class="welcome-actions">
-                        <button class="btn-action nav-link-btn" data-target="ataques">
+                        <button class="btn-action nav-link-btn" data-target="ataques" data-i18n="btn_conocer_ataques">
                             <i class="fa-solid fa-virus-slash"></i> Conocer Ataques
                         </button>
-                        <button class="btn-action btn-sec nav-link-btn" data-target="proteccion">
+                        <button class="btn-action btn-sec nav-link-btn" data-target="proteccion" data-i18n="btn_como_protegerse">
                             <i class="fa-solid fa-key"></i> Cómo Protegerse
                         </button>
-                        <button class="btn-action btn-alert nav-link-btn" data-target="alertas">
+                        <button class="btn-action btn-alert nav-link-btn" data-target="alertas" data-i18n="btn_ver_alertas">
                             <i class="fa-solid fa-triangle-exclamation"></i> Ver Alertas
                         </button>
                     </div>
@@ -238,17 +252,10 @@
         <section id="sec-noticias" class="dashboard-section hidden fade-in">
             <div class="section-title">
                 <i class="fa-solid fa-newspaper title-icon"></i>
-                <h2>Noticias de Ciberseguridad</h2>
+                <h2 data-i18n="sec_noticias_title">Noticias de Ciberseguridad</h2>
             </div>
             <div class="news-header-toolbar" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-                <p class="news-section-desc" style="margin-bottom: 0;">Últimas noticias y amenazas del mundo de la ciberseguridad en tiempo real.</p>
-                <div class="global-news-lang-bar">
-                    <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-language"></i> Traducir todas:</span>
-                    <button class="global-lang-btn active" data-lang="en" title="English (Original)">🇬🇧 EN</button>
-                    <button class="global-lang-btn" data-lang="es" title="Español">🇪🇸 ES</button>
-                    <button class="global-lang-btn" data-lang="fr" title="Français">🇫🇷 FR</button>
-                    <button class="global-lang-btn" data-lang="pt" title="Português">🇵🇹 PT</button>
-                </div>
+                <p class="news-section-desc" style="margin-bottom: 0;" data-i18n="sec_noticias_desc">Últimas noticias y amenazas del mundo de la ciberseguridad en tiempo real.</p>
             </div>
 
             <!-- Loading State -->
@@ -272,7 +279,7 @@
         <section id="sec-ataques" class="dashboard-section hidden fade-in">
             <div class="section-title">
                 <i class="fa-solid fa-skull title-icon"></i>
-                <h2>Catálogo de Ataques Cibernéticos</h2>
+                <h2 data-i18n="sec_ataques_title">Catálogo de Ataques Cibernéticos</h2>
             </div>
             
             <div class="hacks-grid">
@@ -280,10 +287,10 @@
                 <article class="hack-card">
                     <div class="hack-header">
                         <span class="hack-badge phish">Ataque</span>
-                        <h3>Phishing (Suplantación)</h3>
+                        <h3 data-i18n="phish_h3">Phishing (Suplantación)</h3>
                     </div>
-                    <p class="hack-desc">Correos electrónicos, mensajes o sitios web falsos que simulan ser de entidades de confianza (bancos, redes sociales) para engañarte y robar tus contraseñas o números de tarjeta.</p>
-                    <div class="hack-example">
+                    <p class="hack-desc" data-i18n="phish_desc">Correos electrónicos, mensajes o sitios web falsos que simulan ser de entidades de confianza (bancos, redes sociales) para engañarte y robar tus contraseñas o números de tarjeta.</p>
+                    <div class="hack-example" data-i18n="phish_ex">
                         <strong>Ejemplo típico:</strong> Un correo urgente de "tu banco" diciendo que tu cuenta ha sido bloqueada y dándote un enlace para iniciar sesión.
                     </div>
                 </article>
@@ -292,10 +299,10 @@
                 <article class="hack-card">
                     <div class="hack-header">
                         <span class="hack-badge ransom">Malware</span>
-                        <h3>Ransomware (Secuestro de datos)</h3>
+                        <h3 data-i18n="ransom_h3">Ransomware (Secuestro de datos)</h3>
                     </div>
-                    <p class="hack-desc">Virus informáticos que secuestran y cifran los archivos de tu ordenador o teléfono, impidiendo que accedas a ellos y exigiendo un pago económico (rescate) para liberarlos.</p>
-                    <div class="hack-example">
+                    <p class="hack-desc" data-i18n="ransom_desc">Virus informáticos que secuestran y cifran los archivos de tu ordenador o teléfono, impidiendo que accedas a ellos y exigiendo un pago económico (rescate) para liberarlos.</p>
+                    <div class="hack-example" data-i18n="ransom_ex">
                         <strong>Ejemplo típico:</strong> Descargar un archivo adjunto extraño de factura en un email que resulta ser un ejecutable que encripta tus fotos y documentos.
                     </div>
                 </article>
@@ -304,10 +311,10 @@
                 <article class="hack-card">
                     <div class="hack-header">
                         <span class="hack-badge network">Red</span>
-                        <h3>Man-in-the-Middle (MitM)</h3>
+                        <h3 data-i18n="mitm_h3">Man-in-the-Middle (MitM)</h3>
                     </div>
-                    <p class="hack-desc">Un atacante intercepta la comunicación entre tu dispositivo e internet, usualmente en redes Wi-Fi públicas sin seguridad, capturando todo lo que envías y recibes.</p>
-                    <div class="hack-example">
+                    <p class="hack-desc" data-i18n="mitm_desc">Un atacante intercepta la comunicación entre tu dispositivo e internet, usualmente en redes Wi-Fi públicas sin seguridad, capturando todo lo que envías y recibes.</p>
+                    <div class="hack-example" data-i18n="mitm_ex">
                         <strong>Ejemplo típico:</strong> Conectarse a la red abierta "Wi-Fi Gratis Aeropuerto" creada por un hacker para leer tus mensajes de WhatsApp o contraseñas.
                     </div>
                 </article>
@@ -316,10 +323,10 @@
                 <article class="hack-card">
                     <div class="hack-header">
                         <span class="hack-badge auth-badge">Acceso</span>
-                        <h3>Fuerza Bruta (Brute Force)</h3>
+                        <h3 data-i18n="brute_h3">Fuerza Bruta (Brute Force)</h3>
                     </div>
-                    <p class="hack-desc">Los atacantes utilizan sistemas automáticos muy potentes que prueban miles de millones de combinaciones de contraseñas por segundo hasta dar con la tuya.</p>
-                    <div class="hack-example">
+                    <p class="hack-desc" data-i18n="brute_desc">Los atacantes utilizan sistemas automáticos muy potentes que prueban miles de millones de combinaciones de contraseñas por segundo hasta dar con la tuya.</p>
+                    <div class="hack-example" data-i18n="brute_ex">
                         <strong>Ejemplo típico:</strong> Adivinar cuentas que usan contraseñas débiles o por defecto como `123456`, `admin` o `password`.
                     </div>
                 </article>
@@ -330,13 +337,13 @@
         <section id="sec-proteccion" class="dashboard-section hidden fade-in">
             <div class="section-title">
                 <i class="fa-solid fa-user-shield title-icon"></i>
-                <h2>Plan Personal de Ciberseguridad</h2>
+                <h2 data-i18n="sec_proteccion_title">Plan Personal de Ciberseguridad</h2>
             </div>
             
             <div class="checklist-card card">
                 <div class="progress-container">
                     <div class="progress-text">
-                        <span>Tu Nivel de Escudo</span>
+                        <span data-i18n="shield_level">Tu Nivel de Escudo</span>
                         <span id="escudo-porcentaje">0%</span>
                     </div>
                     <div class="progress-bar-bg">
@@ -349,32 +356,32 @@
                         <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-mfa">
                         <span class="check-box"></span>
                         <div class="check-text">
-                            <h3>Activar Doble Factor (MFA) <span class="badge badge-chk">+25%</span></h3>
-                            <p>Activado en Google, bancos, redes sociales y mi gestor de contraseñas.</p>
+                            <h3><span data-i18n="chk1_title">Activar Doble Factor (MFA)</span> <span class="badge badge-chk">+25%</span></h3>
+                            <p data-i18n="chk1_desc">Activado en Google, bancos, redes sociales y mi gestor de contraseñas.</p>
                         </div>
                     </label>
                     <label class="check-item">
                         <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-passwords">
                         <span class="check-box"></span>
                         <div class="check-text">
-                            <h3>Usar Gestor de Contraseñas <span class="badge badge-chk">+25%</span></h3>
-                            <p>Todas mis cuentas tienen claves aleatorias únicas de más de 14 caracteres.</p>
+                            <h3><span data-i18n="chk2_title">Usar Gestor de Contraseñas</span> <span class="badge badge-chk">+25%</span></h3>
+                            <p data-i18n="chk2_desc">Todas mis cuentas tienen claves aleatorias únicas de más de 14 caracteres.</p>
                         </div>
                     </label>
                     <label class="check-item">
                         <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-backups">
                         <span class="check-box"></span>
                         <div class="check-text">
-                            <h3>Configurar Copias de Seguridad <span class="badge badge-chk">+25%</span></h3>
-                            <p>Mis archivos importantes se respaldan automáticamente en un disco externo o la nube.</p>
+                            <h3><span data-i18n="chk3_title">Configurar Copias de Seguridad</span> <span class="badge badge-chk">+25%</span></h3>
+                            <p data-i18n="chk3_desc">Mis archivos importantes se respaldan automáticamente en un disco externo o la nube.</p>
                         </div>
                     </label>
                     <label class="check-item">
                         <input type="checkbox" class="security-checkbox" data-weight="25" id="chk-updates">
                         <span class="check-box"></span>
                         <div class="check-text">
-                            <h3>Actualizaciones Automáticas <span class="badge badge-chk">+25%</span></h3>
-                            <p>El sistema operativo de mi móvil y ordenador se actualiza de manera automática.</p>
+                            <h3><span data-i18n="chk4_title">Actualizaciones Automáticas</span> <span class="badge badge-chk">+25%</span></h3>
+                            <p data-i18n="chk4_desc">El sistema operativo de mi móvil y ordenador se actualiza de manera automática.</p>
                         </div>
                     </label>
                 </div>
@@ -388,9 +395,9 @@
                 <div class="card password-meter-card">
                     <div class="card-header">
                         <i class="fa-solid fa-key header-icon"></i>
-                        <h2>Analizador de Contraseñas</h2>
+                        <h2 data-i18n="pass_meter_title">Analizador de Contraseñas</h2>
                     </div>
-                    <p class="section-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Escribe una contraseña para calcular cuánto tiempo tardaría un ataque de fuerza bruta en adivinarla. Tu clave se procesa localmente y es 100% segura.</p>
+                    <p class="section-desc" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;" data-i18n="pass_meter_desc">Escribe una contraseña para calcular cuánto tiempo tardaría un ataque de fuerza bruta en adivinarla. Tu clave se procesa localmente y es 100% segura.</p>
                     
                     <div class="input-group">
                         <div class="input-wrapper">
@@ -408,11 +415,11 @@
 
                     <div class="meter-results mt-2">
                         <div class="result-row">
-                            <span>Tiempo de Hackeo:</span>
+                            <span data-i18n="time_result_label">Tiempo de Hackeo:</span>
                             <strong id="hack-time-result">Instante (Muy Débil)</strong>
                         </div>
                         <div class="result-row">
-                            <span>Fuerza:</span>
+                            <span data-i18n="strength_result_label">Fuerza:</span>
                             <strong id="strength-label">Nula</strong>
                         </div>
                     </div>
@@ -427,14 +434,14 @@
                 <div class="card quiz-card">
                     <div class="card-header">
                         <i class="fa-solid fa-graduation-cap header-icon"></i>
-                        <h2>Quiz de Ciberseguridad</h2>
+                        <h2 data-i18n="quiz_title">Quiz de Ciberseguridad</h2>
                     </div>
                     
                     <!-- Quiz Start Screen -->
                     <div id="quiz-start-screen" class="quiz-screen">
                         <i class="fa-solid fa-shield-virus quiz-large-icon"></i>
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;">Demuestra tus conocimientos sobre ciberseguridad y ataques comunes respondiendo un test rápido de 5 preguntas.</p>
-                        <button id="btn-start-quiz" class="btn-submit" style="width: 100%;">Empezar Quiz</button>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; text-align: center;" data-i18n="quiz_start_text">Demuestra tus conocimientos sobre ciberseguridad y ataques comunes respondiendo un test rápido de 5 preguntas.</p>
+                        <button id="btn-start-quiz" class="btn-submit" style="width: 100%;" data-i18n="btn_start_quiz">Empezar Quiz</button>
                     </div>
 
                     <!-- Quiz Question Screen (hidden initially) -->
@@ -458,10 +465,10 @@
                     <!-- Quiz Score Screen (hidden initially) -->
                     <div id="quiz-score-screen" class="quiz-screen hidden">
                         <i class="fa-solid fa-award quiz-large-icon" style="color: var(--accent-color);"></i>
-                        <h3 style="text-align: center; margin-bottom: 0.5rem;">¡Cuestionario Completado!</h3>
+                        <h3 style="text-align: center; margin-bottom: 0.5rem;" data-i18n="quiz_completed">¡Cuestionario Completado!</h3>
                         <p class="quiz-score-summary">Puntuación: <strong id="quiz-final-score">0 / 5</strong></p>
                         <p id="quiz-evaluation-text" class="quiz-evaluation">Necesitas aprender más sobre ciberseguridad.</p>
-                        <button id="btn-restart-quiz" class="btn-submit mt-2" style="width: 100%;">Repetir Cuestionario</button>
+                        <button id="btn-restart-quiz" class="btn-submit mt-2" style="width: 100%;" data-i18n="btn_restart_quiz">Repetir Cuestionario</button>
                     </div>
                 </div>
             </div>
@@ -472,14 +479,14 @@
             <div class="chat-container card">
                 <div class="card-header chat-header">
                     <i class="fa-solid fa-robot header-icon"></i>
-                    <h2>Asistente de Inteligencia Artificial</h2>
+                    <h2 data-i18n="sec_asistente_title">Asistente de Inteligencia Artificial</h2>
                     <button id="btn-clear-chat" class="btn-delete-record" style="margin-left: auto;" title="Limpiar chat"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
                 
                 <!-- Chat Window messages feed -->
                 <div id="chat-messages" class="chat-messages">
                     <div class="chat-message bot">
-                        <div class="message-bubble">
+                        <div class="message-bubble" data-i18n="bot_greeting">
                             ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.
                         </div>
                     </div>
@@ -487,7 +494,7 @@
 
                 <!-- Chat Input area -->
                 <form id="chat-form" class="chat-form">
-                    <input type="text" id="chat-input" placeholder="Pregúntame sobre ciberseguridad..." required autocomplete="off">
+                    <input type="text" id="chat-input" placeholder="Pregúntame sobre ciberseguridad..." required autocomplete="off" data-i18n-ph="chat_ph">
                     <button type="submit" class="btn-chat-send" id="btn-chat-send">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -503,11 +510,11 @@
                 <div class="card form-card">
                     <div class="card-header">
                         <i class="fa-solid fa-bullhorn header-icon"></i>
-                        <h2>Reportar una Alerta</h2>
+                        <h2 data-i18n="report_alert_title">Reportar una Alerta</h2>
                     </div>
                     <form id="firebase-form" class="interactive-form">
                         <div class="input-group">
-                            <label for="alert-title">Tipo de Incidente / Título</label>
+                            <label for="alert-title" data-i18n="alert_title_label">Tipo de Incidente / Título</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-triangle-exclamation input-icon"></i>
                                 <input type="text" id="alert-title" placeholder="Ej. Wi-Fi sospechoso en cafetería, correo falso de banco..." required autocomplete="off">
@@ -515,7 +522,7 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="alert-details">Detalles o Recomendación</label>
+                            <label for="alert-details" data-i18n="alert_details_label">Detalles o Recomendación</label>
                             <div class="input-wrapper">
                                 <i class="fa-regular fa-comment input-icon"></i>
                                 <textarea id="alert-details" placeholder="Describe brevemente lo que viste y cómo otros usuarios pueden protegerse..." rows="4" required></textarea>
@@ -523,7 +530,7 @@
                         </div>
 
                         <button type="submit" class="btn-submit" id="btn-submit">
-                            <span class="btn-text">Publicar Alerta</span>
+                            <span class="btn-text" data-i18n="btn_submit_alert">Publicar Alerta</span>
                             <i class="fa-solid fa-paper-plane btn-icon"></i>
                         </button>
                     </form>
@@ -533,7 +540,7 @@
                 <div class="card list-card">
                     <div class="card-header">
                         <i class="fa-solid fa-rss header-icon"></i>
-                        <h2>Alertas de la Comunidad</h2>
+                        <h2 data-i18n="community_alerts_title">Alertas de la Comunidad</h2>
                         <span id="data-counter" class="badge">0</span>
                     </div>
                     <div class="list-wrapper">
@@ -545,8 +552,8 @@
                         <!-- Empty state -->
                         <div id="empty-state" class="empty-state hidden">
                             <i class="fa-regular fa-bell-slash empty-icon"></i>
-                            <p>No hay alertas reportadas</p>
-                            <span>¡Mantén segura a la comunidad reportando incidentes!</span>
+                            <p data-i18n="empty_alerts">No hay alertas reportadas</p>
+                            <span data-i18n="empty_alerts_sub">¡Mantén segura a la comunidad reportando incidentes!</span>
                         </div>
                         <!-- Live feed -->
                         <ul id="records-list" class="records-list"></ul>
@@ -558,7 +565,7 @@
 
     <!-- Footer -->
     <footer class="app-footer">
-        <p>RichHack - Desarrollado para concientización en Ciberseguridad.</p>
+        <p data-i18n="footer_text">RichHack - Desarrollado para concientización en Ciberseguridad.</p>
     </footer>
 
     <!-- Immediate Inline UI Tab Switcher, Password Toggle & Theme Switcher -->
@@ -639,6 +646,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_batchNewsLangFix"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_siteWideI18n"></script>
 </body>
 </html>

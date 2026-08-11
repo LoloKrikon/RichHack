@@ -1624,6 +1624,42 @@ textarea ~ .input-icon {
     color: var(--text-secondary);
 }
 
+/* Site-Wide Global Language Selector Dropdown */
+.site-lang-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    padding: 0.3rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+.site-lang-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+}
+
+.site-lang-select option {
+    background: #0a0e17;
+    color: #f3f4f6;
+}
+
+body.light-theme .site-lang-select {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.light-theme .site-lang-select option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
 /* News Translation Toolbar & Language Selectors */
 .global-news-lang-bar {
     display: flex;

@@ -1168,29 +1168,403 @@ const btnRetryNews = document.getElementById("btn-retry-news");
 let newsLoaded = false;
 const activeCommentUnsubs = {};
 
-if (btnRetryNews) {
-    btnRetryNews.addEventListener("click", () => {
-        newsLoaded = false;
-        loadCyberNews();
-    });
-}
-
-// Global News Language Switcher Delegation with Batch Translation & Caching
-let currentGlobalNewsLang = "en";
-const newsTranslationCache = {
-    en: {},
-    es: {},
-    fr: {},
-    pt: {}
+// --- INTERNATIONALIZATION (i18n) SYSTEM ---
+const I18N_DICTIONARY = {
+    es: {
+        auth_subtitle: "Aprende sobre hackeos y protégete en internet",
+        tab_entrar: "Entrar",
+        tab_registrar: "Registrarse",
+        tab_invitado: "Invitado",
+        lbl_email: "Correo Electrónico",
+        lbl_password: "Contraseña",
+        lbl_pass_secure: "Contraseña Segura",
+        lbl_apodo: "Apodo / Alias (Público)",
+        lbl_nombre: "Nombre (Privado)",
+        lbl_apellidos: "Apellidos (Privado)",
+        lbl_fecha_nac: "Fecha de Nacimiento (Privada)",
+        reqs_title: "Requisitos obligatorios de la contraseña:",
+        req_len: "Mínimo 8 caracteres",
+        req_upper: "Mínimo 1 letra mayúscula (A-Z)",
+        req_num: "Mínimo 1 número (0-9)",
+        btn_login: "Iniciar Sesión",
+        btn_register: "Crear Cuenta",
+        guest_text: "Accede de forma anónima para leer la información de ciberseguridad y ver las alertas comunitarias.",
+        btn_guest: "Entrar como Invitado",
+        btn_google: "Continuar con Google",
+        social_divider: "O accede de forma rápida",
+        nav_inicio: "Inicio",
+        nav_noticias: "Noticias",
+        nav_ataques: "Ataques",
+        nav_proteccion: "Protección",
+        nav_herramientas: "Herramientas",
+        nav_asistente: "Asistente IA",
+        nav_alertas: "Alertas",
+        status_active: "Sesión Activa",
+        welcome_title: "Bienvenido al Portal de Seguridad",
+        welcome_desc: "Internet está lleno de oportunidades, pero también de amenazas invisibles. En RichHack, nos dedicamos a educar sobre las técnicas utilizadas por los atacantes cibernéticos y las medidas fundamentales que puedes tomar para mantener a salvo tu identidad y tu información.",
+        welcome_subdesc: "Explora las secciones interactivas para aprender sobre ataques populares, checklists de seguridad o para reportar incidentes que hayas observado a la comunidad en tiempo real.",
+        btn_conocer_ataques: "Conocer Ataques",
+        btn_como_protegerse: "Cómo Protegerse",
+        btn_ver_alertas: "Ver Alertas",
+        sec_noticias_title: "Noticias de Ciberseguridad",
+        sec_noticias_desc: "Últimas noticias y amenazas del mundo de la ciberseguridad en tiempo real.",
+        sec_ataques_title: "Catálogo de Ataques Cibernéticos",
+        phish_h3: "Phishing (Suplantación)",
+        phish_desc: "Correos electrónicos, mensajes o sitios web falsos que simulan ser de entidades de confianza (bancos, redes sociales) para engañarte y robar tus contraseñas o números de tarjeta.",
+        phish_ex: "<strong>Ejemplo típico:</strong> Un correo urgente de \"tu banco\" diciendo que tu cuenta ha sido bloqueada y dándote un enlace para iniciar sesión.",
+        ransom_h3: "Ransomware (Secuestro de datos)",
+        ransom_desc: "Virus informáticos que secuestran y cifran los archivos de tu ordenador o teléfono, impidiendo que accedas a ellos y exigiendo un pago económico (rescate) para liberarlos.",
+        ransom_ex: "<strong>Ejemplo típico:</strong> Descargar un archivo adjunto extraño de factura en un email que resulta ser un ejecutable que encripta tus fotos y documentos.",
+        mitm_h3: "Man-in-the-Middle (MitM)",
+        mitm_desc: "Un atacante intercepta la comunicación entre tu dispositivo e internet, usualmente en redes Wi-Fi públicas sin seguridad, capturando todo lo que envías y recibes.",
+        mitm_ex: "<strong>Ejemplo típico:</strong> Conectarse a la red abierta \"Wi-Fi Gratis Aeropuerto\" creada por un hacker para leer tus mensajes de WhatsApp o contraseñas.",
+        brute_h3: "Fuerza Bruta (Brute Force)",
+        brute_desc: "Los atacantes utilizan sistemas automáticos muy potentes que prueban miles de millones de combinaciones de contraseñas por segundo hasta dar con la tuya.",
+        brute_ex: "<strong>Ejemplo típico:</strong> Adivinar cuentas que usan contraseñas débiles o por defecto como 123456, admin o password.",
+        sec_proteccion_title: "Plan Personal de Ciberseguridad",
+        shield_level: "Tu Nivel de Escudo",
+        chk1_title: "Activar Doble Factor (MFA)",
+        chk1_desc: "Activado en Google, bancos, redes sociales y mi gestor de contraseñas.",
+        chk2_title: "Usar Gestor de Contraseñas",
+        chk2_desc: "Todas mis cuentas tienen claves aleatorias únicas de más de 14 caracteres.",
+        chk3_title: "Configurar Copias de Seguridad",
+        chk3_desc: "Mis archivos importantes se respaldan automáticamente en un disco externo o la nube.",
+        chk4_title: "Actualizaciones Automáticas",
+        chk4_desc: "El sistema operativo de mi móvil y ordenador se actualiza de manera automática.",
+        sec_herramientas_title: "Herramientas Interactivas",
+        pass_meter_title: "Analizador de Contraseñas",
+        pass_meter_desc: "Escribe una contraseña para calcular cuánto tiempo tardaría un ataque de fuerza bruta en adivinarla. Tu clave se procesa localmente y es 100% segura.",
+        time_result_label: "Tiempo de Hackeo:",
+        strength_result_label: "Fuerza:",
+        quiz_title: "Quiz de Ciberseguridad",
+        quiz_start_text: "Demuestra tus conocimientos sobre ciberseguridad y ataques comunes respondiendo un test rápido de 5 preguntas.",
+        btn_start_quiz: "Empezar Quiz",
+        quiz_completed: "¡Cuestionario Completado!",
+        btn_restart_quiz: "Repetir Cuestionario",
+        sec_asistente_title: "Asistente de Inteligencia Artificial",
+        bot_greeting: "¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.",
+        chat_ph: "Pregúntame sobre ciberseguridad...",
+        sec_alertas_title: "Alertas de Seguridad en Tiempo Real",
+        report_alert_title: "Reportar una Alerta",
+        alert_title_label: "Tipo de Incidente / Título",
+        alert_details_label: "Detalles o Recomendación",
+        btn_submit_alert: "Publicar Alerta",
+        community_alerts_title: "Alertas de la Comunidad",
+        empty_alerts: "No hay alertas reportadas",
+        empty_alerts_sub: "¡Mantén segura a la comunidad reportando incidentes!",
+        footer_text: "RichHack - Desarrollado para concientización en Ciberseguridad."
+    },
+    en: {
+        auth_subtitle: "Learn about cybersecurity attacks and protect yourself online",
+        tab_entrar: "Log In",
+        tab_registrar: "Register",
+        tab_invitado: "Guest",
+        lbl_email: "Email Address",
+        lbl_password: "Password",
+        lbl_pass_secure: "Secure Password",
+        lbl_apodo: "Nickname / Alias (Public)",
+        lbl_nombre: "First Name (Private)",
+        lbl_apellidos: "Last Name (Private)",
+        lbl_fecha_nac: "Date of Birth (Private)",
+        reqs_title: "Mandatory password requirements:",
+        req_len: "At least 8 characters",
+        req_upper: "At least 1 uppercase letter (A-Z)",
+        req_num: "At least 1 number (0-9)",
+        btn_login: "Sign In",
+        btn_register: "Create Account",
+        guest_text: "Access anonymously to read cybersecurity guides and community threat alerts.",
+        btn_guest: "Enter as Guest",
+        btn_google: "Continue with Google",
+        social_divider: "Or sign in quickly",
+        nav_inicio: "Home",
+        nav_noticias: "News",
+        nav_ataques: "Attacks",
+        nav_proteccion: "Protection",
+        nav_herramientas: "Tools",
+        nav_asistente: "AI Assistant",
+        nav_alertas: "Alerts",
+        status_active: "Active Session",
+        welcome_title: "Welcome to the Security Portal",
+        welcome_desc: "The internet is full of opportunities, but also invisible threats. At RichHack, we educate about cyber attack techniques and fundamental steps to keep your identity and data safe.",
+        welcome_subdesc: "Explore interactive modules to learn about common attacks, security checklists, or report incident alerts to the community in real time.",
+        btn_conocer_ataques: "Explore Attacks",
+        btn_como_protegerse: "How to Protect",
+        btn_ver_alertas: "View Alerts",
+        sec_noticias_title: "Cybersecurity News",
+        sec_noticias_desc: "Latest cybersecurity news and threat intelligence updated in real time.",
+        sec_ataques_title: "Cyber Attack Catalog",
+        phish_h3: "Phishing (Spoofing)",
+        phish_desc: "Fake emails, messages, or websites pretending to be trusted entities (banks, social media) to trick you into stealing your passwords or card numbers.",
+        phish_ex: "<strong>Typical example:</strong> An urgent email from \"your bank\" claiming your account is locked and giving a link to sign in.",
+        ransom_h3: "Ransomware (Data Extortion)",
+        ransom_desc: "Computer viruses that hijack and encrypt your computer or phone files, blocking access and demanding a ransom payment to release them.",
+        ransom_ex: "<strong>Typical example:</strong> Downloading a strange invoice email attachment that turns out to be an executable encrypting your photos and docs.",
+        mitm_h3: "Man-in-the-Middle (MitM)",
+        mitm_desc: "An attacker intercepts communication between your device and the internet, usually on unencrypted public Wi-Fi networks, capturing everything you send.",
+        mitm_ex: "<strong>Typical example:</strong> Connecting to an open \"Airport Free Wi-Fi\" created by a hacker to read your WhatsApp messages or passwords.",
+        brute_h3: "Brute Force Attack",
+        brute_desc: "Attackers use automated tools testing billions of password combinations per second until cracking yours.",
+        brute_ex: "<strong>Typical example:</strong> Guessing accounts using weak or default passwords like 123456, admin, or password.",
+        sec_proteccion_title: "Personal Cybersecurity Plan",
+        shield_level: "Your Shield Level",
+        chk1_title: "Enable Multi-Factor Auth (MFA)",
+        chk1_desc: "Enabled on Google, bank, social media accounts, and password manager.",
+        chk2_title: "Use Password Manager",
+        chk2_desc: "All my accounts have unique, random passwords of 14+ characters.",
+        chk3_title: "Configure Automated Backups",
+        chk3_desc: "Important files are automatically backed up to an external drive or cloud.",
+        chk4_title: "Automatic Updates",
+        chk4_desc: "Mobile phone and computer operating systems update automatically.",
+        sec_herramientas_title: "Interactive Security Tools",
+        pass_meter_title: "Password Strength Analyzer",
+        pass_meter_desc: "Type a password to estimate how long a brute-force attack would take to crack it. Processed 100% locally and safely.",
+        time_result_label: "Cracking Time:",
+        strength_result_label: "Strength:",
+        quiz_title: "Cybersecurity Challenge",
+        quiz_start_text: "Test your cybersecurity knowledge and awareness with a quick 5-question quiz challenge.",
+        btn_start_quiz: "Start Quiz",
+        quiz_completed: "Quiz Completed!",
+        btn_restart_quiz: "Retake Quiz",
+        sec_asistente_title: "AI Security Assistant",
+        bot_greeting: "Hello! I am your AI cybersecurity assistant. Ask me anything about attack vectors, device protection, or network auditing.",
+        chat_ph: "Ask me about cybersecurity...",
+        sec_alertas_title: "Real-Time Security Threat Alerts",
+        report_alert_title: "Report a Threat Alert",
+        alert_title_label: "Incident Type / Title",
+        alert_details_label: "Threat Details & Recommendations",
+        btn_submit_alert: "Publish Alert",
+        community_alerts_title: "Community Alerts Feed",
+        empty_alerts: "No reported alerts yet",
+        empty_alerts_sub: "Keep the community safe by reporting suspicious incidents!",
+        footer_text: "RichHack - Developed for Cybersecurity Awareness & Education."
+    },
+    fr: {
+        auth_subtitle: "Découvrez les cyberattaques et protégez-vous en ligne",
+        tab_entrar: "Connexion",
+        tab_registrar: "S'inscrire",
+        tab_invitado: "Invité",
+        lbl_email: "Adresse e-mail",
+        lbl_password: "Mot de passe",
+        lbl_pass_secure: "Mot de passe sécurisé",
+        lbl_apodo: "Pseudo / Alias (Public)",
+        lbl_nombre: "Prénom (Privé)",
+        lbl_apellidos: "Nom (Privé)",
+        lbl_fecha_nac: "Date de naissance (Privée)",
+        reqs_title: "Exigences obligatoires du mot de passe :",
+        req_len: "Au moins 8 caractères",
+        req_upper: "Au moins 1 majuscule (A-Z)",
+        req_num: "Au moins 1 chiffre (0-9)",
+        btn_login: "Se connecter",
+        btn_register: "Créer un compte",
+        guest_text: "Accédez anonymement pour consulter les guides de sécurité et alertes de la communauté.",
+        btn_guest: "Entrer comme Invité",
+        btn_google: "Continuer avec Google",
+        social_divider: "Ou connectez-vous rapidement",
+        nav_inicio: "Accueil",
+        nav_noticias: "Actualités",
+        nav_ataques: "Attaques",
+        nav_proteccion: "Protection",
+        nav_herramientas: "Outils",
+        nav_asistente: "Assistant IA",
+        nav_alertas: "Alertes",
+        status_active: "Session Active",
+        welcome_title: "Bienvenue sur le Portail de Sécurité",
+        welcome_desc: "Internet regorge d'opportunités, mais aussi de menaces invisibles. Chez RichHack, nous vous sensibilisons aux attaques informatiques et aux mesures clés pour protéger votre identité.",
+        welcome_subdesc: "Explorez nos modules interactifs pour découvrir les attaques courantes, listes de contrôle ou signaler des menaces en temps réel.",
+        btn_conocer_ataques: "Découvrir Attaques",
+        btn_como_protegerse: "Comment se protéger",
+        btn_ver_alertas: "Voir Alertes",
+        sec_noticias_title: "Actualités Cybersécurité",
+        sec_noticias_desc: "Dernières actualités et menaces cybersécurité mises à jour en temps réel.",
+        sec_ataques_title: "Catalogue des Attaques Informatiques",
+        phish_h3: "Hameçonnage (Phishing)",
+        phish_desc: "Faux e-mails ou sites web usurpant l'identité d'organismes de confiance pour dérober vos mots de passe ou numéros de carte.",
+        phish_ex: "<strong>Exemple typique :</strong> Un e-mail urgent de \"votre banque\" prétendant que votre compte est bloqué avec un lien frauduleux.",
+        ransom_h3: "Rançongiciel (Ransomware)",
+        ransom_desc: "Logiciels malveillants chiffrant vos fichiers et exigeant une rançon pour rétablir l'accès à vos données.",
+        ransom_ex: "<strong>Exemple typique :</strong> Télécharger une pièce jointe de facture piégée qui chiffre vos photos et documents.",
+        mitm_h3: "Attaque de l'homme du milieu (MitM)",
+        mitm_desc: "Un attaquant intercepte les communications entre votre appareil et Internet sur un réseau Wi-Fi public non sécurisé.",
+        mitm_ex: "<strong>Exemple typique :</strong> Se connecter à un réseau Wi-Fi ouvert piégé par un pirate pour intercepter vos mots de passe.",
+        brute_h3: "Attaque par Force Brute",
+        brute_desc: "Les pirates utilisent des programmes testant des milliards de combinaisons par seconde pour deviner vos mots de passe.",
+        brute_ex: "<strong>Exemple typique :</strong> Deviner des comptes utilisant des mots de passe faibles comme 123456 ou admin.",
+        sec_proteccion_title: "Plan Personnel de Cybersécurité",
+        shield_level: "Niveau du Bouclier :",
+        chk1_title: "Activer la double authentification (2FA)",
+        chk1_desc: "Activé sur Google, banques, réseaux sociaux et gestionnaire de mots de passe.",
+        chk2_title: "Utiliser un Gestionnaire de Mots de Passe",
+        chk2_desc: "Chacun de mes comptes possède un mot de passe unique de 14+ caractères.",
+        chk3_title: "Configurer Sauvegardes Automatiques",
+        chk3_desc: "Mes fichiers importants sont sauvegardés automatiquement sur un disque externe ou cloud.",
+        chk4_title: "Mises à Jour Automatiques",
+        chk4_desc: "Le système d'exploitation de mon téléphone et ordinateur se met à jour automatiquement.",
+        sec_herramientas_title: "Outils Interactifs",
+        pass_meter_title: "Analyseur de Mots de Passe",
+        pass_meter_desc: "Saisissez un mot de passe pour estimer le temps nécessaire à une attaque par force brute. Traité 100% localement et en toute sécurité.",
+        time_result_label: "Temps de piratage :",
+        strength_result_label: "Force :",
+        quiz_title: "Défi Quiz Cybersécurité",
+        quiz_start_text: "Testez vos connaissances en cybersécurité grâce à un quiz rapide de 5 questions.",
+        btn_start_quiz: "Commencer le Quiz",
+        quiz_completed: "Quiz Terminé !",
+        btn_restart_quiz: "Recommencer le Quiz",
+        sec_asistente_title: "Assistant IA de Sécurité",
+        bot_greeting: "Bonjour ! Je suis votre assistant IA en cybersécurité. Posez-moi des questions sur les attaques, la protection ou la sécurité réseau.",
+        chat_ph: "Posez une question sur la cybersécurité...",
+        sec_alertas_title: "Alertes de Sécurité en Temps Réel",
+        report_alert_title: "Signaler une Alerte",
+        alert_title_label: "Type d'incident / Titre",
+        alert_details_label: "Détails & Recommandations",
+        btn_submit_alert: "Publier l'Alerte",
+        community_alerts_title: "Fil d'Alertes Communautaires",
+        empty_alerts: "Aucune alerte signalée",
+        empty_alerts_sub: "Protégez la communauté en signalant les incidents suspects !",
+        footer_text: "RichHack - Développé pour la Sensibilisation à la Cybersécurité."
+    },
+    pt: {
+        auth_subtitle: "Aprenda sobre ciberataques e proteja-se na internet",
+        tab_entrar: "Entrar",
+        tab_registrar: "Registar",
+        tab_invitado: "Convidado",
+        lbl_email: "Correio Eletrónico",
+        lbl_password: "Palavra-passe",
+        lbl_pass_secure: "Palavra-passe Segura",
+        lbl_apodo: "Alcunha / Alias (Público)",
+        lbl_nombre: "Nome (Privado)",
+        lbl_apellidos: "Apelidos (Privado)",
+        lbl_fecha_nac: "Data de Nascimento (Privada)",
+        reqs_title: "Requisitos obrigatórios da palavra-passe:",
+        req_len: "Mínimo de 8 caracteres",
+        req_upper: "Mínimo de 1 letra maiúscula (A-Z)",
+        req_num: "Mínimo de 1 número (0-9)",
+        btn_login: "Iniciar Sessão",
+        btn_register: "Criar Conta",
+        guest_text: "Aceda de forma anónima para ler conteúdos de segurança e ver alertas da comunidade.",
+        btn_guest: "Entrar como Convidado",
+        btn_google: "Continuar com o Google",
+        social_divider: "Ou aceda de forma rápida",
+        nav_inicio: "Início",
+        nav_noticias: "Notícias",
+        nav_ataques: "Ataques",
+        nav_proteccion: "Proteção",
+        nav_herramientas: "Ferramentas",
+        nav_asistente: "Assistente IA",
+        nav_alertas: "Alertas",
+        status_active: "Sessão Ativa",
+        welcome_title: "Bem-vindo ao Portal de Segurança",
+        welcome_desc: "A internet está cheia de oportunidades, mas também de ameaças invisíveis. Na RichHack, educamos sobre técnicas de ataque e medidas essenciais para manter os seus dados seguros.",
+        welcome_subdesc: "Explore as secções interativas para aprender sobre ataques populares, listas de verificação ou comunicar alertas em tempo real.",
+        btn_conocer_ataques: "Conhecer Ataques",
+        btn_como_protegerse: "Como se Proteger",
+        btn_ver_alertas: "Ver Alertas",
+        sec_noticias_title: "Notícias de Cibersegurança",
+        sec_noticias_desc: "Últimas notícias e ameaças do mundo da cibersegurança em tempo real.",
+        sec_ataques_title: "Catálogo de Ataques Cibernéticos",
+        phish_h3: "Phishing (Usurpação de Identidade)",
+        phish_desc: "E-mails ou sites falsos que fingem ser entidades de confiança para roubar senhas ou dados bancários.",
+        phish_ex: "<strong>Exemplo típico:</strong> Um e-mail urgente do \"seu banco\" a informar que a conta foi bloqueada com um link para iniciar sessão.",
+        ransom_h3: "Ransomware (Sequestro de Dados)",
+        ransom_desc: "Vírus informáticos que bloqueiam e encriptam ficheiros do computador ou telemóvel, exigindo pagamento de resgate.",
+        ransom_ex: "<strong>Exemplo típico:</strong> Descarregar um anexo falso de fatura por e-mail que encripta fotografias e documentos.",
+        mitm_h3: "Man-in-the-Middle (MitM)",
+        mitm_desc: "Um atacante intercheta as comunicações entre o seu dispositivo e a internet em redes Wi-Fi públicas sem segurança.",
+        mitm_ex: "<strong>Exemplo típico:</strong> Ligar-se a uma rede Wi-Fi aberta criada por um hacker para ler mensagens ou credenciais.",
+        brute_h3: "Ataque de Força Bruta",
+        brute_desc: "Atacantes utilizam ferramentas automáticas que testam mil milhões de combinações de senhas por segundo.",
+        brute_ex: "<strong>Exemplo típico:</strong> Adivinhar contas com palavras-passe fracas como 123456 ou admin.",
+        sec_proteccion_title: "Plano Pessoal de Cibersegurança",
+        shield_level: "Seu Nível de Escudo:",
+        chk1_title: "Ativar Autenticação de Dois Fatores (2FA)",
+        chk1_desc: "Ativado no Google, bancos, redes sociais e gestor de palavras-passe.",
+        chk2_title: "Usar Gestor de Palavras-passe",
+        chk2_desc: "Todas as minhas contas têm chaves únicas e aleatórias com mais de 14 caracteres.",
+        chk3_title: "Configurar Cópias de Segurança",
+        chk3_desc: "Ficheiros importantes são salvos automaticamente num disco externo ou nuvem.",
+        chk4_title: "Atualizações Automáticas",
+        chk4_desc: "O sistema operativo do meu telemóvel e computador é atualizado automaticamente.",
+        sec_herramientas_title: "Ferramentas Interativas",
+        pass_meter_title: "Analisador de Palavras-passe",
+        pass_meter_desc: "Escreva uma palavra-passe para calcular o tempo de força bruta para decifrá-la. Processado 100% localmente e com segurança.",
+        time_result_label: "Tempo de Descodificação:",
+        strength_result_label: "Força:",
+        quiz_title: "Desafio de Cibersegurança",
+        quiz_start_text: "Demonstre o seu conhecimento em cibersegurança respondendo a um questionário rápido de 5 perguntas.",
+        btn_start_quiz: "Iniciar Questionário",
+        quiz_completed: "Questionário Concluído!",
+        btn_restart_quiz: "Repetir Questionário",
+        sec_asistente_title: "Assistente de Inteligência Artificial",
+        bot_greeting: "Olá! Sou o seu assistente de cibersegurança. Faça qualquer pergunta sobre ataques, proteção ou auditoria de redes.",
+        chat_ph: "Pergunte-me sobre cibersegurança...",
+        sec_alertas_title: "Alertas de Segurança em Tempo Real",
+        report_alert_title: "Comunicar um Alerta",
+        alert_title_label: "Tipo de Incidente / Título",
+        alert_details_label: "Detalhes e Recomendações",
+        btn_submit_alert: "Publicar Alerta",
+        community_alerts_title: "Feed de Alertas da Comunidade",
+        empty_alerts: "Sem alertas comunicados",
+        empty_alerts_sub: "Mantenha a comunidade segura comunicando incidentes suspeitos!",
+        footer_text: "RichHack - Desenvolvido para a Consciencialização em Cibersegurança."
+    }
 };
 
-document.addEventListener("click", (e) => {
-    const globalBtn = e.target.closest(".global-lang-btn");
-    if (globalBtn) {
-        e.preventDefault();
-        const targetLang = globalBtn.dataset.lang;
-        translateAllNews(targetLang);
+let currentSiteLang = localStorage.getItem("richhack_site_lang") || "es";
+
+function applyLanguage(lang) {
+    if (!I18N_DICTIONARY[lang]) return;
+    currentSiteLang = lang;
+    localStorage.setItem("richhack_site_lang", lang);
+
+    const dict = I18N_DICTIONARY[lang];
+
+    // Synchronize select dropdowns
+    document.querySelectorAll(".site-lang-select").forEach(sel => {
+        sel.value = lang;
+    });
+
+    // Translate all elements with data-i18n
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) {
+            const icon = el.querySelector("i");
+            if (icon) {
+                let hasReplaced = false;
+                el.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
+                        node.textContent = " " + dict[key];
+                        hasReplaced = true;
+                    }
+                });
+                if (!hasReplaced) {
+                    el.appendChild(document.createTextNode(" " + dict[key]));
+                }
+            } else {
+                el.innerHTML = dict[key];
+            }
+        }
+    });
+
+    // Translate placeholders
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+        const key = el.getAttribute("data-i18n-ph");
+        if (dict[key]) {
+            el.setAttribute("placeholder", dict[key]);
+        }
+    });
+
+    // Translate news section feed
+    translateAllNews(lang);
+}
+
+document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("site-lang-select")) {
+        applyLanguage(e.target.value);
     }
+});
+
+// Apply language on initial load
+document.addEventListener("DOMContentLoaded", () => {
+    applyLanguage(currentSiteLang);
 });
 
 async function translateAllNews(targetLang) {
@@ -1610,6 +1984,13 @@ function renderReplyItem(reply) {
     }
 
     return rDiv;
+}
+
+if (btnRetryNews) {
+    btnRetryNews.addEventListener("click", () => {
+        newsLoaded = false;
+        loadCyberNews();
+    });
 }
 
 async function postNewsComment(newsId, text, parentId = null, inputEl = null, replyBoxEl = null) {
