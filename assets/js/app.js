@@ -193,6 +193,21 @@ function initAppDOM() {
             e.preventDefault();
             handleGuestSignIn();
         }
+
+        // Event delegation for Sign Out
+        const logoutBtn = e.target.closest("#btn-logout");
+        if (logoutBtn) {
+            e.preventDefault();
+            signOut(auth)
+                .then(() => {
+                    console.log("Sesión cerrada con éxito");
+                    setupAuthUI();
+                })
+                .catch(err => {
+                    console.error("Error al cerrar sesión:", err);
+                    alert("Error al cerrar sesión: " + err.message);
+                });
+        }
     });
 
     // Submit listeners
@@ -710,7 +725,7 @@ function handleRegisterSubmit(e) {
 }
 
 // Auth Logic: Log In (Email/Password)
-function handleLoginSubmit(e) {
+async function handleLoginSubmit(e) {
     e.preventDefault();
     const lf = document.getElementById("login-form");
     const emailInput = document.getElementById("login-email");
@@ -726,45 +741,47 @@ function handleLoginSubmit(e) {
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Entrando...</span>';
     }
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            console.log("Inicio de sesión exitoso:", userCredential.user.email);
-            if (lf) lf.reset();
-        })
-        .catch((error) => {
-            console.error("Error de login:", error);
-            handleAuthError(error);
-        })
-        .finally(() => {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="btn-text">Iniciar Sesión</span><i class="fa-solid fa-right-to-bracket btn-icon"></i>';
-            }
-        });
+    try {
+        if (auth.currentUser) {
+            await signOut(auth);
+        }
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("Inicio de sesión exitoso:", userCredential.user.email);
+        if (lf) lf.reset();
+    } catch (error) {
+        console.error("Error de login:", error);
+        handleAuthError(error);
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="btn-text">Iniciar Sesión</span><i class="fa-solid fa-right-to-bracket btn-icon"></i>';
+        }
+    }
 }
 
 // Auth Logic: Guest Sign In (Anonymous)
-function handleGuestSignIn() {
+async function handleGuestSignIn() {
     const btnGuestEl = document.getElementById("btn-guest");
     if (btnGuestEl) {
         btnGuestEl.disabled = true;
         btnGuestEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Conectando...</span>';
     }
 
-    signInAnonymously(auth)
-        .then(() => {
-            console.log("Acceso como invitado anónimo correcto");
-        })
-        .catch((error) => {
-            console.error("Error de acceso anónimo:", error);
-            handleAuthError(error);
-        })
-        .finally(() => {
-            if (btnGuestEl) {
-                btnGuestEl.disabled = false;
-                btnGuestEl.innerHTML = '<span class="btn-text">Entrar como Invitado</span><i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>';
-            }
-        });
+    try {
+        if (auth.currentUser) {
+            await signOut(auth);
+        }
+        await signInAnonymously(auth);
+        console.log("Acceso como invitado anónimo correcto");
+    } catch (error) {
+        console.error("Error de acceso anónimo:", error);
+        handleAuthError(error);
+    } finally {
+        if (btnGuestEl) {
+            btnGuestEl.disabled = false;
+            btnGuestEl.innerHTML = '<span class="btn-text">Entrar como Invitado</span><i class="fa-solid fa-arrow-right-to-bracket btn-icon"></i>';
+        }
+    }
 }
 
 // Auth Logic: Google Sign In
@@ -781,6 +798,9 @@ async function handleGoogleSignIn() {
     }
 
     try {
+        if (auth.currentUser) {
+            await signOut(auth);
+        }
         await signInWithPopup(auth, provider);
         console.log("Autenticación con Google (popup) exitosa");
     } catch (popupError) {
@@ -808,21 +828,6 @@ async function handleGoogleSignIn() {
             btnGoogleEl.innerHTML = originalHTML;
         }
     }
-}
-
-// Auth Logic: Sign Out
-if (btnLogout) {
-    btnLogout.addEventListener("click", () => {
-        signOut(auth)
-            .then(() => {
-                console.log("Sesión cerrada");
-                const firstTab = navButtons[0];
-                if (firstTab) firstTab.click();
-            })
-            .catch(err => {
-                console.error("Error al cerrar sesión:", err);
-            });
-    });
 }
 
 // UI setup when logged in
