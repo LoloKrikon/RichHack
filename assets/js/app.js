@@ -1175,119 +1175,92 @@ if (btnRetryNews) {
     });
 }
 
-// Global News Language Switcher Delegation
+// Global News Language Switcher Delegation with Batch Translation & Caching
 let currentGlobalNewsLang = "en";
+const newsTranslationCache = {
+    en: {},
+    es: {},
+    fr: {},
+    pt: {}
+};
 
 document.addEventListener("click", (e) => {
     const globalBtn = e.target.closest(".global-lang-btn");
     if (globalBtn) {
         e.preventDefault();
         const targetLang = globalBtn.dataset.lang;
-        currentGlobalNewsLang = targetLang;
-        document.querySelectorAll(".global-lang-btn").forEach(b => {
-            if (b.dataset.lang === targetLang) {
-                b.classList.add("active");
-            } else {
-                b.classList.remove("active");
-            }
-        });
-
-        const cards = document.querySelectorAll(".news-card");
-        cards.forEach(card => {
-            translateNewsCard(card, targetLang);
-        });
+        translateAllNews(targetLang);
     }
 });
 
-async function loadCyberNews() {
-    if (newsLoaded) return;
-    if (newsLoading) newsLoading.style.display = "flex";
-    if (newsError) newsError.classList.add("hidden");
-    if (newsFeed) {
-        newsFeed.classList.add("hidden");
-        newsFeed.innerHTML = "";
-    }
+async function translateAllNews(targetLang) {
+    if (currentGlobalNewsLang === targetLang) return;
 
-    try {
-        const feedUrl = "https://feeds.feedburner.com/TheHackersNews";
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
-        const data = await res.json();
-
-        if (data.status !== "ok" || !data.items || data.items.length === 0) {
-            throw new Error("No se pudieron cargar las noticias.");
+    // Update active button UI
+    document.querySelectorAll(".global-lang-btn").forEach(b => {
+        if (b.dataset.lang === targetLang) {
+            b.classList.add("active");
+        } else {
+            b.classList.remove("active");
         }
+    });
 
-        if (newsLoading) newsLoading.style.display = "none";
-        if (newsFeed) newsFeed.classList.remove("hidden");
-
-        data.items.forEach(item => {
-            renderNewsCard(item);
-        });
-
-        newsLoaded = true;
-
-        if (currentGlobalNewsLang !== "en") {
-            const cards = document.querySelectorAll(".news-card");
-            cards.forEach(card => {
-                translateNewsCard(card, currentGlobalNewsLang);
-            });
-        }
-    } catch (err) {
-        console.error("Error cargando noticias:", err);
-        if (newsLoading) newsLoading.style.display = "none";
-        if (newsError) newsError.classList.remove("hidden");
-    }
-}
-
-function generateNewsId(urlOrGuid) {
-    let hash = 0;
-    const str = urlOrGuid || "";
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash |= 0;
-    }
-    return "news_" + Math.abs(hash);
-}
-
-async function translateNewsCard(card, targetLang) {
-    if (!card) return;
-    const currentLang = card.dataset.currentLang || "en";
-    if (currentLang === targetLang) return;
-
-    const titleEl = card.querySelector(".news-title");
-    const snippetEl = card.querySelector(".news-snippet");
-    if (!titleEl || !snippetEl) return;
+    const cards = document.querySelectorAll(".news-card");
+    if (cards.length === 0) return;
 
     // 1. If switching back to English (Original)
     if (targetLang === "en") {
-        titleEl.textContent = card.dataset.origTitle || "";
-        snippetEl.textContent = card.dataset.origSnippet || "";
-        card.dataset.currentLang = "en";
+        cards.forEach(card => {
+            const titleEl = card.querySelector(".news-title");
+            const snippetEl = card.querySelector(".news-snippet");
+            if (titleEl && card.dataset.origTitle) titleEl.textContent = card.dataset.origTitle;
+            if (snippetEl && card.dataset.origSnippet) snippetEl.textContent = card.dataset.origSnippet;
+        });
+        currentGlobalNewsLang = "en";
         return;
     }
 
-    // 2. Check cache
-    const cacheKey = "translated_" + targetLang;
-    if (card.dataset[cacheKey]) {
-        try {
-            const cached = JSON.parse(card.dataset[cacheKey]);
-            titleEl.textContent = cached.title;
-            snippetEl.textContent = cached.snippet;
-            card.dataset.currentLang = targetLang;
-            return;
-        } catch (e) {
-            console.error("Error parsing cached translation:", e);
+    // 2. Check if we already have cache for all cards in this target language
+    let allCached = true;
+    cards.forEach(card => {
+        const newsId = card.dataset.newsId;
+        if (!newsId || !newsTranslationCache[targetLang] || !newsTranslationCache[targetLang][newsId]) {
+            allCached = false;
         }
+    });
+
+    if (allCached) {
+        cards.forEach(card => {
+            const newsId = card.dataset.newsId;
+            const cached = newsTranslationCache[targetLang][newsId];
+            const titleEl = card.querySelector(".news-title");
+            const snippetEl = card.querySelector(".news-snippet");
+            if (titleEl && cached) titleEl.textContent = cached.title;
+            if (snippetEl && cached) snippetEl.textContent = cached.snippet;
+        });
+        currentGlobalNewsLang = targetLang;
+        return;
     }
 
-    // 3. Translate via Gemini API
-    const origTitle = card.dataset.origTitle || titleEl.textContent;
-    const origSnippet = card.dataset.origSnippet || snippetEl.textContent;
+    // 3. Otherwise, perform 1 BATCH Gemini API Request for ALL uncached items!
+    const itemsToTranslate = [];
+    cards.forEach(card => {
+        const newsId = card.dataset.newsId;
+        if (!newsTranslationCache[targetLang][newsId]) {
+            itemsToTranslate.push({
+                id: newsId,
+                title: card.dataset.origTitle || "",
+                snippet: card.dataset.origSnippet || ""
+            });
+        }
+    });
 
-    const prevTitleText = titleEl.textContent;
-    const prevSnippetText = snippetEl.textContent;
-    titleEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="font-size: 0.9em; margin-right: 0.4rem;"></i> Traduciendo...`;
+    // Show loading spinner on first card title
+    const firstTitleEl = cards[0]?.querySelector(".news-title");
+    const prevFirstTitle = firstTitleEl ? firstTitleEl.innerHTML : "";
+    if (firstTitleEl) {
+        firstTitleEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="font-size: 0.9em; margin-right: 0.4rem;"></i> Traduciendo noticias...`;
+    }
 
     const langNames = {
         es: "Spanish (Español)",
@@ -1298,7 +1271,7 @@ async function translateNewsCard(card, targetLang) {
     const apiKey = localStorage.getItem("gemini_api_key") || DEFAULT_GEMINI_API_KEY;
 
     try {
-        const promptText = `Translate the following cybersecurity news headline and snippet into ${langNames[targetLang]}. Return strictly a JSON object with keys "title" and "snippet". Headline: "${origTitle}". Snippet: "${origSnippet}".`;
+        const promptText = `Translate the following array of cybersecurity news items into ${langNames[targetLang]}. Return strictly a JSON array of objects with keys "id", "title", and "snippet". Items: ${JSON.stringify(itemsToTranslate)}`;
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
             method: "POST",
@@ -1313,21 +1286,33 @@ async function translateNewsCard(card, targetLang) {
         if (!response.ok) throw new Error(data.error?.message || "Error en la traducción.");
 
         const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        const parsed = JSON.parse(jsonText);
+        const translatedArray = JSON.parse(jsonText);
 
-        if (parsed.title && parsed.snippet) {
-            titleEl.textContent = parsed.title;
-            snippetEl.textContent = parsed.snippet;
-            card.dataset[cacheKey] = JSON.stringify({ title: parsed.title, snippet: parsed.snippet });
-            card.dataset.currentLang = targetLang;
+        if (Array.isArray(translatedArray)) {
+            translatedArray.forEach(item => {
+                if (item.id) {
+                    newsTranslationCache[targetLang][item.id] = { title: item.title, snippet: item.snippet };
+                }
+            });
+
+            cards.forEach(card => {
+                const newsId = card.dataset.newsId;
+                const cached = newsTranslationCache[targetLang][newsId];
+                const titleEl = card.querySelector(".news-title");
+                const snippetEl = card.querySelector(".news-snippet");
+                if (titleEl && cached) titleEl.textContent = cached.title;
+                if (snippetEl && cached) snippetEl.textContent = cached.snippet;
+            });
+
+            currentGlobalNewsLang = targetLang;
         } else {
-            throw new Error("Respuesta de traducción no válida.");
+            throw new Error("Respuesta no válida del servicio de traducción.");
         }
 
     } catch (err) {
-        console.error("Error al traducir noticia:", err);
-        titleEl.textContent = prevTitleText;
-        snippetEl.textContent = prevSnippetText;
+        console.error("Error en traducción por lote:", err);
+        if (firstTitleEl) firstTitleEl.innerHTML = prevFirstTitle;
+        alert(`Ocurrió un error al traducir noticias al idioma seleccionado. Inténtalo nuevamente.`);
     }
 }
 
@@ -1353,6 +1338,7 @@ function renderNewsCard(item) {
     cleanText = cleanText.trim().substring(0, 160) + "...";
 
     // Save originals for translation
+    card.dataset.newsId = newsId;
     card.dataset.origTitle = item.title;
     card.dataset.origSnippet = cleanText;
     card.dataset.currentLang = "en";
