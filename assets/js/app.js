@@ -201,6 +201,13 @@ function initAppDOM() {
 
     const rf = document.getElementById("register-form");
     if (rf) rf.addEventListener("submit", handleRegisterSubmit);
+
+    // Module listeners
+    initChecklistListeners();
+    initPasswordMeter();
+    initQuizListeners();
+    initGeminiChatListeners();
+    initAlertFormListener();
 }
 
 if (document.readyState === "loading") {
@@ -211,11 +218,12 @@ if (document.readyState === "loading") {
 
 // --- LÓGICA DE INTERACTIVE CHECKLIST ---
 function loadChecklist() {
+    const chks = document.querySelectorAll(".security-checkbox");
     const saved = localStorage.getItem("richhack_checklist");
     if (saved) {
         try {
             const states = JSON.parse(saved);
-            securityCheckboxes.forEach(chk => {
+            chks.forEach(chk => {
                 chk.checked = !!states[chk.id];
             });
         } catch (e) {
@@ -226,40 +234,56 @@ function loadChecklist() {
 }
 
 function saveChecklist() {
+    const chks = document.querySelectorAll(".security-checkbox");
     const states = {};
-    securityCheckboxes.forEach(chk => {
+    chks.forEach(chk => {
         states[chk.id] = chk.checked;
     });
     localStorage.setItem("richhack_checklist", JSON.stringify(states));
 }
 
 function calculateShieldProgress() {
+    const chks = document.querySelectorAll(".security-checkbox");
+    const escPct = document.getElementById("escudo-porcentaje");
+    const escBar = document.getElementById("escudo-progress-bar");
     let total = 0;
-    securityCheckboxes.forEach(chk => {
+    chks.forEach(chk => {
         if (chk.checked) {
             total += parseInt(chk.getAttribute("data-weight") || "0");
         }
     });
-    if (escudoPorcentaje) escudoPorcentaje.textContent = `${total}%`;
-    if (escudoProgressBar) escudoProgressBar.style.width = `${total}%`;
+    if (escPct) escPct.textContent = `${total}%`;
+    if (escBar) escBar.style.width = `${total}%`;
 }
 
-securityCheckboxes.forEach(chk => {
-    chk.addEventListener("change", () => {
-        saveChecklist();
-        calculateShieldProgress();
+function initChecklistListeners() {
+    const chks = document.querySelectorAll(".security-checkbox");
+    chks.forEach(chk => {
+        chk.addEventListener("change", () => {
+            saveChecklist();
+            calculateShieldProgress();
+        });
     });
-});
+}
 
 // --- LÓGICA DE MEDIDOR DE FUERZA DE CONTRASEÑA ---
-if (passwordInput) {
-    passwordInput.addEventListener("input", () => {
-        const val = passwordInput.value;
+function initPasswordMeter() {
+    const pInput = document.getElementById("password-input");
+    if (!pInput) return;
+
+    pInput.addEventListener("input", () => {
+        const val = pInput.value;
+        const sBar = document.getElementById("strength-bar");
+        const hTime = document.getElementById("hack-time-result");
+        const sLabel = document.getElementById("strength-label");
+        const sBox = document.getElementById("password-suggestions");
+        const sList = document.getElementById("suggestions-list");
+
         if (!val) {
-            if (strengthBar) strengthBar.style.width = "0%";
-            if (hackTimeResult) hackTimeResult.textContent = "Instante (Muy Débil)";
-            if (strengthLabel) strengthLabel.textContent = "Nula";
-            if (suggestionsBox) suggestionsBox.classList.add("hidden");
+            if (sBar) sBar.style.width = "0%";
+            if (hTime) hTime.textContent = "Instante (Muy Débil)";
+            if (sLabel) sLabel.textContent = "Nula";
+            if (sBox) sBox.classList.add("hidden");
             return;
         }
 
@@ -286,7 +310,7 @@ if (passwordInput) {
 
         // 2. Pintar la barra de fuerza
         let width = (score / 6) * 100;
-        if (strengthBar) strengthBar.style.width = `${width}%`;
+        if (sBar) sBar.style.width = `${width}%`;
 
         let color = "#ff4b4b"; // weak
         let label = "Muy Débil";
@@ -300,15 +324,14 @@ if (passwordInput) {
         } else if (score >= 2) {
             label = "Débil";
         }
-        if (strengthBar) strengthBar.style.backgroundColor = color;
-        if (strengthLabel) strengthLabel.textContent = label;
+        if (sBar) sBar.style.backgroundColor = color;
+        if (sLabel) sLabel.textContent = label;
 
         // 3. Calcular tiempo de hackeo estimado
-        // Asumimos un cluster de fuerza bruta potente capaz de probar 100.000 millones de combinaciones por segundo (10^11/sec)
         const crackSpeed = 1e11;
         const combinations = Math.pow(poolSize, val.length);
         const seconds = combinations / crackSpeed;
-        if (hackTimeResult) hackTimeResult.textContent = formatCrackTime(seconds);
+        if (hTime) hTime.textContent = formatCrackTime(seconds);
 
         // 4. Mostrar recomendaciones
         const suggestions = [];
@@ -318,10 +341,10 @@ if (passwordInput) {
         if (!hasSpecial) suggestions.push("Usa caracteres especiales/símbolos (ej. @, $, !, #).");
 
         if (suggestions.length > 0) {
-            if (suggestionsBox) suggestionsBox.classList.remove("hidden");
-            if (suggestionsList) suggestionsList.innerHTML = suggestions.map(s => `<li>${s}</li>`).join("");
+            if (sBox) sBox.classList.remove("hidden");
+            if (sList) sList.innerHTML = suggestions.map(s => `<li>${s}</li>`).join("");
         } else {
-            if (suggestionsBox) suggestionsBox.classList.add("hidden");
+            if (sBox) sBox.classList.add("hidden");
         }
     });
 }
@@ -408,77 +431,102 @@ const quizQuestions = [
 let quizCurrentIndex = 0;
 let quizScore = 0;
 
-if (btnStartQuiz) btnStartQuiz.addEventListener("click", startQuiz);
-if (btnRestartQuiz) btnRestartQuiz.addEventListener("click", startQuiz);
+function initQuizListeners() {
+    const btnStart = document.getElementById("btn-start-quiz");
+    const btnRestart = document.getElementById("btn-restart-quiz");
+    const btnNext = document.getElementById("btn-next-question");
+
+    if (btnStart) btnStart.addEventListener("click", startQuiz);
+    if (btnRestart) btnRestart.addEventListener("click", startQuiz);
+    if (btnNext) {
+        btnNext.addEventListener("click", () => {
+            quizCurrentIndex++;
+            if (quizCurrentIndex < quizQuestions.length) {
+                showQuizQuestion();
+            } else {
+                showQuizScore();
+            }
+        });
+    }
+}
 
 function startQuiz() {
+    const qStart = document.getElementById("quiz-start-screen");
+    const qScore = document.getElementById("quiz-score-screen");
+    const qQuest = document.getElementById("quiz-question-screen");
+
     quizCurrentIndex = 0;
     quizScore = 0;
-    if (quizStartScreen) quizStartScreen.classList.add("hidden");
-    if (quizScoreScreen) quizScoreScreen.classList.add("hidden");
-    if (quizQuestionScreen) quizQuestionScreen.classList.remove("hidden");
+    if (qStart) qStart.classList.add("hidden");
+    if (qScore) qScore.classList.add("hidden");
+    if (qQuest) qQuest.classList.remove("hidden");
     showQuizQuestion();
 }
 
 function showQuizQuestion() {
-    if (quizFeedback) quizFeedback.classList.add("hidden");
-    if (btnNextQuestion) btnNextQuestion.classList.add("hidden");
-    if (quizAnswersContainer) quizAnswersContainer.innerHTML = "";
+    const qFeed = document.getElementById("quiz-feedback");
+    const bNext = document.getElementById("btn-next-question");
+    const qAnsContainer = document.getElementById("quiz-answers");
+    const qText = document.getElementById("quiz-question-text");
+    const qNum = document.getElementById("quiz-current-question-num");
+    const qBar = document.getElementById("quiz-progress-bar");
+
+    if (qFeed) qFeed.classList.add("hidden");
+    if (bNext) bNext.classList.add("hidden");
+    if (qAnsContainer) qAnsContainer.innerHTML = "";
     
     const question = quizQuestions[quizCurrentIndex];
-    if (quizQuestionText) quizQuestionText.textContent = question.q;
-    if (quizCurrentQuestionNum) quizCurrentQuestionNum.textContent = `Pregunta ${quizCurrentIndex + 1} de 5`;
-    if (quizProgressBar) quizProgressBar.style.width = `${((quizCurrentIndex + 1) / 5) * 100}%`;
+    if (qText) qText.textContent = question.q;
+    if (qNum) qNum.textContent = `Pregunta ${quizCurrentIndex + 1} de 5`;
+    if (qBar) qBar.style.width = `${((quizCurrentIndex + 1) / 5) * 100}%`;
 
     question.answers.forEach((ans, idx) => {
         const btn = document.createElement("button");
         btn.className = "answer-btn";
         btn.textContent = ans;
         btn.addEventListener("click", () => selectQuizAnswer(idx, btn));
-        if (quizAnswersContainer) quizAnswersContainer.appendChild(btn);
+        if (qAnsContainer) qAnsContainer.appendChild(btn);
     });
 }
 
 function selectQuizAnswer(selectedIndex, selectedBtn) {
     const question = quizQuestions[quizCurrentIndex];
+    const qAnsContainer = document.getElementById("quiz-answers");
+    const qFeedText = document.getElementById("quiz-feedback-text");
+    const qFeed = document.getElementById("quiz-feedback");
+    const bNext = document.getElementById("btn-next-question");
     
-    if (quizAnswersContainer) {
-        const buttons = quizAnswersContainer.querySelectorAll(".answer-btn");
+    if (qAnsContainer) {
+        const buttons = qAnsContainer.querySelectorAll(".answer-btn");
         buttons.forEach(b => b.disabled = true);
     }
 
     if (selectedIndex === question.correct) {
         selectedBtn.classList.add("correct");
         quizScore++;
-        if (quizFeedbackText) quizFeedbackText.innerHTML = `<strong style="color: #4ade80;">¡Correcto!</strong> ${question.feedback}`;
+        if (qFeedText) qFeedText.innerHTML = `<strong style="color: #4ade80;">¡Correcto!</strong> ${question.feedback}`;
     } else {
         selectedBtn.classList.add("incorrect");
-        if (quizAnswersContainer) {
-            const buttons = quizAnswersContainer.querySelectorAll(".answer-btn");
+        if (qAnsContainer) {
+            const buttons = qAnsContainer.querySelectorAll(".answer-btn");
             if (buttons[question.correct]) buttons[question.correct].classList.add("correct");
         }
-        if (quizFeedbackText) quizFeedbackText.innerHTML = `<strong style="color: #f87171;">Incorrecto.</strong> ${question.feedback}`;
+        if (qFeedText) qFeedText.innerHTML = `<strong style="color: #f87171;">Incorrecto.</strong> ${question.feedback}`;
     }
 
-    if (quizFeedback) quizFeedback.classList.remove("hidden");
-    if (btnNextQuestion) btnNextQuestion.classList.remove("hidden");
-}
-
-if (btnNextQuestion) {
-    btnNextQuestion.addEventListener("click", () => {
-        quizCurrentIndex++;
-        if (quizCurrentIndex < quizQuestions.length) {
-            showQuizQuestion();
-        } else {
-            showQuizScore();
-        }
-    });
+    if (qFeed) qFeed.classList.remove("hidden");
+    if (bNext) bNext.classList.remove("hidden");
 }
 
 function showQuizScore() {
-    if (quizQuestionScreen) quizQuestionScreen.classList.add("hidden");
-    if (quizScoreScreen) quizScoreScreen.classList.remove("hidden");
-    if (quizFinalScore) quizFinalScore.textContent = `${quizScore} / 5`;
+    const qQuest = document.getElementById("quiz-question-screen");
+    const qScore = document.getElementById("quiz-score-screen");
+    const qFinal = document.getElementById("quiz-final-score");
+    const qEval = document.getElementById("quiz-evaluation-text");
+
+    if (qQuest) qQuest.classList.add("hidden");
+    if (qScore) qScore.classList.remove("hidden");
+    if (qFinal) qFinal.textContent = `${quizScore} / 5`;
 
     let evaluation = "";
     if (quizScore === 5) {
@@ -488,119 +536,114 @@ function showQuizScore() {
     } else {
         evaluation = "⚠️ ¡Alerta! Eres un Novato en seguridad. Te recomendamos leer a fondo las guías de ciberseguridad y activar tu escudo protector.";
     }
-    if (quizEvaluationText) quizEvaluationText.textContent = evaluation;
+    if (qEval) qEval.textContent = evaluation;
 }
 
-// --- LÓGICA DEL ASISTENTE DE INTELIGENCIA ARTIFICIAL (GEMINI API) ---
+function initGeminiChatListeners() {
+    const kOverlay = document.getElementById("gemini-key-overlay");
+    const kForm = document.getElementById("gemini-key-form");
+    const kInput = document.getElementById("gemini-key-input");
+    const cClear = document.getElementById("btn-clear-chat");
+    const cForm = document.getElementById("chat-form");
+    const cInput = document.getElementById("chat-input");
+
+    if (kForm) {
+        kForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (kInput) {
+                const key = kInput.value.trim();
+                if (key) {
+                    localStorage.setItem("gemini_api_key", key);
+                    kInput.value = "";
+                    if (kOverlay) kOverlay.classList.add("hidden");
+                }
+            }
+        });
+    }
+
+    if (cClear) {
+        cClear.addEventListener("click", () => {
+            const cMsgs = document.getElementById("chat-messages");
+            if (cMsgs) {
+                cMsgs.innerHTML = `
+                    <div class="chat-message bot">
+                        <div class="message-bubble">
+                            ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    if (cForm) {
+        cForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!cInput) return;
+            
+            const messageText = cInput.value.trim();
+            if (!messageText) return;
+
+            const apiKey = localStorage.getItem("gemini_api_key");
+            if (!apiKey) {
+                checkGeminiKey();
+                return;
+            }
+
+            appendChatMessage(messageText, "user");
+            cInput.value = "";
+            
+            const botLoadingId = appendChatMessage("Escribiendo...", "bot", true);
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Eres un asistente experto en seguridad informática y hacking ético para el portal educativo RichHack. Responde en español de forma extremadamente clara, educativa, estructurada y concisa. Si la pregunta no guarda relación alguna con la informática, redes, hacking, ciberseguridad o tecnología, indícale amablemente que solo estás capacitado para responder dudas sobre ciberseguridad. Pregunta: ${messageText}` }] }]
+                    })
+                });
+
+                const data = await response.json();
+                removeChatMessage(botLoadingId);
+
+                if (!response.ok) {
+                    if (response.status === 400 || response.status === 403) {
+                        localStorage.removeItem("gemini_api_key");
+                        checkGeminiKey();
+                        alert("API Key inválida o expirada. Por favor introduce una clave Gemini válida.");
+                        return;
+                    }
+                    throw new Error(data.error?.message || "Error al conectar con la IA.");
+                }
+
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo obtener una respuesta.";
+                appendChatMessage(reply, "bot");
+
+            } catch (err) {
+                console.error("Error consultando Gemini:", err);
+                removeChatMessage(botLoadingId);
+                appendChatMessage(`Disculpa, ocurrió un error al procesar tu solicitud: ${err.message}`, "bot");
+            }
+        });
+    }
+}
+
 function checkGeminiKey() {
     const key = localStorage.getItem("gemini_api_key");
-    if (geminiKeyOverlay) {
+    const kOverlay = document.getElementById("gemini-key-overlay");
+    if (kOverlay) {
         if (key) {
-            geminiKeyOverlay.classList.add("hidden");
+            kOverlay.classList.add("hidden");
         } else {
-            geminiKeyOverlay.classList.remove("hidden");
+            kOverlay.classList.remove("hidden");
         }
     }
 }
 
-if (geminiKeyForm) {
-    geminiKeyForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        if (geminiKeyInput) {
-            const key = geminiKeyInput.value.trim();
-            if (key) {
-                localStorage.setItem("gemini_api_key", key);
-                geminiKeyInput.value = "";
-                if (geminiKeyOverlay) geminiKeyOverlay.classList.add("hidden");
-            }
-        }
-    });
-}
-
-if (btnClearChat) {
-    btnClearChat.addEventListener("click", () => {
-        if (chatMessages) {
-            chatMessages.innerHTML = `
-                <div class="chat-message bot">
-                    <div class="message-bubble">
-                        ¡Hola! Soy tu asistente de ciberseguridad. Puedes hacerme cualquier pregunta sobre tipos de ataques, cómo proteger tu ordenador, o cómo auditar tu red local.
-                    </div>
-                </div>
-            `;
-        }
-    });
-}
-
-if (chatForm) {
-    chatForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!chatInput) return;
-        
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
-
-        const apiKey = localStorage.getItem("gemini_api_key");
-        if (!apiKey) {
-            checkGeminiKey();
-            return;
-        }
-
-        // 1. Agregar mensaje del usuario a la pantalla
-        appendChatMessage(messageText, "user");
-        chatInput.value = "";
-        
-        // 2. Agregar burbuja de carga temporal del bot
-        const botLoadingId = appendChatMessage("Escribiendo...", "bot", true);
-
-        try {
-            // Consultar API de Google Gemini en local
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: `Eres un asistente experto en seguridad informática y hacking ético para el portal educativo RichHack. Responde en español de forma extremadamente clara, educativa, estructurada y concisa. Si la pregunta no guarda relación alguna con la informática, redes, hacking, ciberseguridad o tecnología, indícale amablemente que solo estás capacitado para responder dudas sobre ciberseguridad. Pregunta: ${messageText}`
-                                }
-                            ]
-                        }
-                    ]
-                }
-            });
-
-            const data = await response.json();
-            
-            // Quitar burbuja de carga
-            removeChatMessage(botLoadingId);
-
-            if (!response.ok) {
-                // Si hay problemas de API Key
-                if (response.status === 400 || response.status === 403) {
-                    localStorage.removeItem("gemini_api_key");
-                    checkGeminiKey();
-                    alert("API Key inválida o expirada. Por favor introduce una clave Gemini válida.");
-                    return;
-                }
-                throw new Error(data.error?.message || "Error al conectar con la IA.");
-            }
-
-            const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo obtener una respuesta.";
-            appendChatMessage(reply, "bot");
-
-        } catch (err) {
-            console.error("Error consultando Gemini:", err);
-            removeChatMessage(botLoadingId);
-            appendChatMessage(`Disculpa, ocurrió un error al procesar tu solicitud: ${err.message}`, "bot");
-        }
-    });
-}
-
 function appendChatMessage(text, sender, isLoading = false) {
-    if (!chatMessages) return "";
+    const cMsgs = document.getElementById("chat-messages");
+    if (!cMsgs) return "";
     const id = "msg-" + Math.random().toString(36).substr(2, 9);
     const msgDiv = document.createElement("div");
     msgDiv.className = `chat-message ${sender}`;
@@ -619,10 +662,10 @@ function appendChatMessage(text, sender, isLoading = false) {
     }
 
     msgDiv.innerHTML = `<div class="message-bubble">${formattedText}</div>`;
-    chatMessages.appendChild(msgDiv);
+    cMsgs.appendChild(msgDiv);
     
     // Auto scroll al final
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    cMsgs.scrollTop = cMsgs.scrollHeight;
     
     return id;
 }
@@ -875,12 +918,16 @@ function stopListeningAlerts() {
 }
 
 // Firestore: Add Alert
-if (alertForm) {
-    alertForm.addEventListener("submit", async (e) => {
+function initAlertFormListener() {
+    const aForm = document.getElementById("firebase-form");
+    if (!aForm) return;
+
+    aForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const titleInput = document.getElementById("alert-title");
         const detailsInput = document.getElementById("alert-details");
+        const submitBtn = document.getElementById("btn-submit");
         if (!titleInput || !detailsInput) return;
 
         const titulo = titleInput.value.trim();
@@ -906,33 +953,35 @@ if (alertForm) {
             return;
         }
 
-        if (btnSubmitAlert) {
-            btnSubmitAlert.disabled = true;
-            const originalBtnText = btnSubmitAlert.querySelector(".btn-text")?.textContent || "Publicar Alerta";
-            const btnTextEl = btnSubmitAlert.querySelector(".btn-text");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            const btnTextEl = submitBtn.querySelector(".btn-text");
             if (btnTextEl) btnTextEl.textContent = "Publicando...";
+        }
 
-            try {
-                const creatorName = currentUser.isAnonymous ? "Invitado" : (currentUser.displayName || currentUser.email);
-                
-                await addDoc(collection(db, "alertas_seguridad"), {
-                    titulo: titulo,
-                    detalles: detalles,
-                    autor: creatorName,
-                    autorUid: currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
+        try {
+            const creatorName = currentUser.isAnonymous ? "Invitado" : (currentUser.displayName || currentUser.email);
+            
+            await addDoc(collection(db, "alertas_seguridad"), {
+                titulo: titulo,
+                detalles: detalles,
+                autor: creatorName,
+                autorUid: currentUser.uid,
+                timestamp: serverTimestamp()
+            });
 
-                titleInput.value = "";
-                detailsInput.value = "";
-                titleInput.focus();
+            titleInput.value = "";
+            detailsInput.value = "";
+            titleInput.focus();
 
-            } catch (error) {
-                console.error("Error al guardar la alerta en Firestore:", error);
-                alert("Error al publicar la alerta. Asegúrate de que las reglas de la base de datos están configuradas en Modo de Prueba.");
-            } finally {
-                btnSubmitAlert.disabled = false;
-                if (btnTextEl) btnTextEl.textContent = originalBtnText;
+        } catch (error) {
+            console.error("Error al guardar la alerta en Firestore:", error);
+            alert("Error al publicar la alerta: " + (error.message || error.code));
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                const btnTextEl = submitBtn.querySelector(".btn-text");
+                if (btnTextEl) btnTextEl.textContent = "Publicar Alerta de Seguridad";
             }
         }
     });
