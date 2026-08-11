@@ -217,6 +217,9 @@
                 <button class="nav-btn" data-sec="alertas" data-i18n="nav_alertas">
                     <i class="fa-solid fa-bullhorn"></i> <span>Alertas</span>
                 </button>
+                <button class="nav-btn" data-sec="foro" data-i18n="nav_foro">
+                    <i class="fa-solid fa-comments"></i> <span>Foro</span>
+                </button>
             </nav>
         </header>
 
@@ -574,6 +577,98 @@
                 </div>
             </div>
         </section>
+
+        <!-- SECTION 7: FORO COMUNITARIO -->
+        <section id="sec-foro" class="dashboard-section hidden fade-in">
+            <div class="grid-layout">
+                <!-- Create Post Form Card -->
+                <div class="card form-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-pen-to-square header-icon"></i>
+                        <h2 data-i18n="create_post_title">Publicar en el Foro</h2>
+                    </div>
+                    <form id="forum-post-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="forum-title" data-i18n="lbl_forum_title">Título del Tema</label>
+                            <input type="text" id="forum-title" placeholder="Ej: ¿Alguien sabe si este SMS de Correos es estafa?" required maxLength="150" data-i18n-ph="ph_forum_title">
+                        </div>
+
+                        <div class="input-row" style="margin-bottom: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="forum-category" data-i18n="lbl_forum_category">Categoría</label>
+                                <select id="forum-category" class="site-lang-select" style="width: 100%; height: 42px; border-radius: 8px; font-size: 0.85rem;">
+                                    <option value="Pregunta">❓ Pregunta / Duda</option>
+                                    <option value="Noticia">📰 Noticia / Novedad</option>
+                                    <option value="Tutorial">💡 Consejos / Guía</option>
+                                    <option value="General">💬 Discusión General</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label for="forum-link" data-i18n="lbl_forum_link">Enlace opcional (URL)</label>
+                                <input type="url" id="forum-link" placeholder="https://..." data-i18n-ph="ph_forum_link">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="forum-content" data-i18n="lbl_forum_content">Mensaje / Texto</label>
+                            <textarea id="forum-content" rows="4" placeholder="Escribe aquí tu duda, noticia, explicación o consulta..." required maxLength="3000" class="comment-input" style="width: 100%; resize: vertical;" data-i18n-ph="ph_forum_content"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-i18n="lbl_forum_image">Adjuntar Imagen (Opcional)</label>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <input type="file" id="forum-image-input" accept="image/*" class="hidden">
+                                <button type="button" id="btn-forum-attach-img" class="btn-chat-attach" style="width: auto; padding: 0 0.75rem; font-size: 0.85rem; display: flex; gap: 0.4rem; align-items: center;">
+                                    <i class="fa-solid fa-paperclip"></i> <span data-i18n="btn_choose_img">Seleccionar Imagen</span>
+                                </button>
+                                <span id="forum-img-name" style="font-size: 0.8rem; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Sin archivo seleccionado</span>
+                                <button type="button" id="btn-forum-remove-img" class="btn-remove-record hidden" style="margin-left: auto;" title="Quitar imagen"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit mt-2" style="width: 100%;" data-i18n="btn_publish_post">
+                            <i class="fa-solid fa-paper-plane"></i> Publicar en el Foro
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Forum Feed Card -->
+                <div class="card list-card">
+                    <div class="card-header" style="flex-wrap: wrap; gap: 0.5rem;">
+                        <i class="fa-solid fa-comments header-icon"></i>
+                        <h2 data-i18n="community_forum_title">Foro Comunitario</h2>
+                        <span id="forum-counter" class="badge">0</span>
+                    </div>
+
+                    <!-- Category Filter Toolbar -->
+                    <div class="news-header-toolbar" style="margin-bottom: 1rem;">
+                        <div class="global-news-lang-bar">
+                            <button class="card-lang-btn forum-cat-btn active" data-cat="all">Todos</button>
+                            <button class="card-lang-btn forum-cat-btn" data-cat="Pregunta">❓ Preguntas</button>
+                            <button class="card-lang-btn forum-cat-btn" data-cat="Noticia">📰 Noticias</button>
+                            <button class="card-lang-btn forum-cat-btn" data-cat="Tutorial">💡 Consejos</button>
+                            <button class="card-lang-btn forum-cat-btn" data-cat="General">💬 General</button>
+                        </div>
+                    </div>
+
+                    <div class="list-wrapper">
+                        <!-- Loading state -->
+                        <div id="forum-loading-indicator" class="loading-state">
+                            <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+                            <p>Cargando publicaciones del foro...</p>
+                        </div>
+                        <!-- Empty state -->
+                        <div id="forum-empty-state" class="empty-state hidden">
+                            <i class="fa-regular fa-comments empty-icon"></i>
+                            <p data-i18n="empty_forum">No hay temas publicados aún</p>
+                            <span data-i18n="empty_forum_sub">¡Sé el primero en hacer una pregunta o compartir una noticia!</span>
+                        </div>
+                        <!-- Forum topics feed -->
+                        <div id="forum-topics-list" class="records-list" style="max-height: 650px;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -659,6 +754,6 @@
       });
     </script>
     <!-- Firebase SDK & Custom Scripts -->
-    <script type="module" src="assets/js/app.js?v=20260811_fixQuizQuestionMarks"></script>
+    <script type="module" src="assets/js/app.js?v=20260811_communityForum"></script>
 </body>
 </html>

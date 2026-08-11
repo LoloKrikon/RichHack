@@ -2016,6 +2016,130 @@ body.light-theme .card-lang-btn.active {
     filter: brightness(1.1);
 }
 
+/* Forum Specific Styling */
+.forum-topic-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: var(--transition-smooth);
+}
+
+.forum-topic-card:hover {
+    border-color: rgba(0, 242, 254, 0.25);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.forum-topic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.forum-cat-badge {
+    font-size: 0.725rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+    font-weight: 600;
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--accent-color);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+.forum-cat-badge.cat-Pregunta { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+.forum-cat-badge.cat-Noticia { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+.forum-cat-badge.cat-Tutorial { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+.forum-cat-badge.cat-General { background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3); }
+
+.forum-topic-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.35;
+}
+
+.forum-topic-body {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.forum-topic-img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    object-fit: contain;
+    background: #000;
+    margin-top: 0.35rem;
+}
+
+.forum-topic-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    background: rgba(0, 242, 254, 0.08);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    width: fit-content;
+    border: 1px solid rgba(0, 242, 254, 0.15);
+    transition: var(--transition-smooth);
+}
+
+.forum-topic-link:hover {
+    background: rgba(0, 242, 254, 0.2);
+    text-decoration: underline;
+}
+
+.forum-topic-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+    font-size: 0.775rem;
+    color: var(--text-secondary);
+    border-top: 1px dashed rgba(255, 255, 255, 0.06);
+    padding-top: 0.6rem;
+}
+
+.forum-replies-container {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 0.85rem;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+body.light-theme .forum-topic-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.light-theme .forum-topic-title {
+    color: #0f172a !important;
+}
+
+body.light-theme .forum-topic-body {
+    color: #475569 !important;
+}
+
+body.light-theme .forum-replies-container {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
 /* ============================================
    RESPONSIVE DESIGN (MÓVILES Y TABLETS)
    ============================================ */

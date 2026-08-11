@@ -226,6 +226,7 @@ function initAppDOM() {
     initQuizListeners();
     initGeminiChatListeners();
     initAlertFormListener();
+    initForumSystem();
 }
 
 if (document.readyState === "loading") {
@@ -1303,7 +1304,6 @@ const I18N_DICTIONARY = {
         guest_text: "Accede de forma anónima para leer la información de ciberseguridad y ver las alertas comunitarias.",
         btn_guest: "Entrar como Invitado",
         btn_google: "Continuar con Google",
-        social_divider: "O accede de forma rápida",
         nav_inicio: "Inicio",
         nav_noticias: "Noticias",
         nav_ataques: "Ataques",
@@ -1311,6 +1311,7 @@ const I18N_DICTIONARY = {
         nav_herramientas: "Herramientas",
         nav_asistente: "Asistente IA",
         nav_alertas: "Alertas",
+        nav_foro: "Foro",
         status_active: "Sesión Activa",
         welcome_title: "Bienvenido al Portal de Seguridad",
         welcome_desc: "Internet está lleno de oportunidades, pero también de amenazas invisibles. En RichHack, nos dedicamos a educar sobre las técnicas utilizadas por los atacantes cibernéticos y las medidas fundamentales que puedes tomar para mantener a salvo tu identidad y tu información.",
@@ -1364,6 +1365,17 @@ const I18N_DICTIONARY = {
         community_alerts_title: "Alertas de la Comunidad",
         empty_alerts: "No hay alertas reportadas",
         empty_alerts_sub: "¡Mantén segura a la comunidad reportando incidentes!",
+        create_post_title: "Publicar en el Foro",
+        community_forum_title: "Foro Comunitario",
+        empty_forum: "No hay temas publicados aún",
+        empty_forum_sub: "¡Sé el primero en hacer una pregunta o compartir una noticia!",
+        lbl_forum_title: "Título del Tema",
+        lbl_forum_category: "Categoría",
+        lbl_forum_link: "Enlace opcional (URL)",
+        lbl_forum_content: "Mensaje / Texto",
+        lbl_forum_image: "Adjuntar Imagen (Opcional)",
+        btn_choose_img: "Seleccionar Imagen",
+        btn_publish_post: "Publicar en el Foro",
         footer_text: "RichHack - Desarrollado para concientización en Ciberseguridad."
     },
     en: {
@@ -1395,6 +1407,7 @@ const I18N_DICTIONARY = {
         nav_herramientas: "Tools",
         nav_asistente: "AI Assistant",
         nav_alertas: "Alerts",
+        nav_foro: "Forum",
         status_active: "Active Session",
         welcome_title: "Welcome to the Security Portal",
         welcome_desc: "The internet is full of opportunities, but also invisible threats. At RichHack, we educate about cyber attack techniques and fundamental steps to keep your identity and data safe.",
@@ -1448,6 +1461,17 @@ const I18N_DICTIONARY = {
         community_alerts_title: "Community Alerts Feed",
         empty_alerts: "No reported alerts yet",
         empty_alerts_sub: "Keep the community safe by reporting suspicious incidents!",
+        create_post_title: "Post on Forum",
+        community_forum_title: "Community Forum",
+        empty_forum: "No topics posted yet",
+        empty_forum_sub: "Be the first to start a discussion or ask a question!",
+        lbl_forum_title: "Topic Title",
+        lbl_forum_category: "Category",
+        lbl_forum_link: "Optional Link (URL)",
+        lbl_forum_content: "Message / Content",
+        lbl_forum_image: "Attach Image (Optional)",
+        btn_choose_img: "Choose Image",
+        btn_publish_post: "Publish Topic",
         footer_text: "RichHack - Developed for Cybersecurity Awareness & Education."
     },
     fr: {
@@ -1479,6 +1503,7 @@ const I18N_DICTIONARY = {
         nav_herramientas: "Outils",
         nav_asistente: "Assistant IA",
         nav_alertas: "Alertes",
+        nav_foro: "Forum",
         status_active: "Session Active",
         welcome_title: "Bienvenue sur le Portail de Sécurité",
         welcome_desc: "Internet regorge d'opportunités, mais aussi de menaces invisibles. Chez RichHack, nous vous sensibilisons aux attaques informatiques et aux mesures clés pour protéger votre identité.",
@@ -1532,6 +1557,17 @@ const I18N_DICTIONARY = {
         community_alerts_title: "Fil d'Alertes Communautaires",
         empty_alerts: "Aucune alerte signalée",
         empty_alerts_sub: "Protégez la communauté en signalant les incidents suspects !",
+        create_post_title: "Publier sur le Forum",
+        community_forum_title: "Forum de Discussion",
+        empty_forum: "Aucun sujet publié",
+        empty_forum_sub: "Soyez le premier à poser une question !",
+        lbl_forum_title: "Titre du Sujet",
+        lbl_forum_category: "Catégorie",
+        lbl_forum_link: "Lien Optionnel (URL)",
+        lbl_forum_content: "Message / Contenu",
+        lbl_forum_image: "Joindre une Image (Optionnel)",
+        btn_choose_img: "Choisir une Image",
+        btn_publish_post: "Publier le Sujet",
         footer_text: "RichHack - Développé pour la Sensibilisation à la Cybersécurité."
     },
     pt: {
@@ -1563,6 +1599,7 @@ const I18N_DICTIONARY = {
         nav_herramientas: "Ferramentas",
         nav_asistente: "Assistente IA",
         nav_alertas: "Alertas",
+        nav_foro: "Fórum",
         status_active: "Sessão Ativa",
         welcome_title: "Bem-vindo ao Portal de Segurança",
         welcome_desc: "A internet está cheia de oportunidades, mas também de ameaças invisíveis. Na RichHack, educamos sobre técnicas de ataque e medidas essenciais para manter os seus dados seguros.",
@@ -1616,8 +1653,20 @@ const I18N_DICTIONARY = {
         community_alerts_title: "Feed de Alertas da Comunidade",
         empty_alerts: "Sem alertas comunicados",
         empty_alerts_sub: "Mantenha a comunidade segura comunicando incidentes suspeitos!",
+        create_post_title: "Publicar no Fórum",
+        community_forum_title: "Fórum Comunitário",
+        empty_forum: "Sem tópicos publicados",
+        empty_forum_sub: "Seja o primeiro a fazer uma pergunta ou partilhar uma notícia!",
+        lbl_forum_title: "Título do Tópico",
+        lbl_forum_category: "Categoria",
+        lbl_forum_link: "Link Opcional (URL)",
+        lbl_forum_content: "Mensagem / Texto",
+        lbl_forum_image: "Anexar Imagem (Opcional)",
+        btn_choose_img: "Selecionar Imagem",
+        btn_publish_post: "Publicar Tópico",
         footer_text: "RichHack - Desenvolvido para a Consciencialização em Cibersegurança."
     }
+};
 };
 
 let currentSiteLang = localStorage.getItem("richhack_site_lang") || "es";
@@ -2192,4 +2241,379 @@ async function postNewsComment(newsId, text, parentId = null, inputEl = null, re
         console.error("Error publicando comentario:", e);
         alert("No se pudo publicar el comentario. Verifica tu conexión.");
     }
+}
+
+// --- LÓGICA DEL FORO COMUNITARIO ---
+let currentForumAttachedImage = null;
+let forumUnsubscribe = null;
+let currentForumCategoryFilter = "all";
+
+function initForumSystem() {
+    const forumForm = document.getElementById("forum-post-form");
+    const forumImageInput = document.getElementById("forum-image-input");
+    const btnForumAttachImg = document.getElementById("btn-forum-attach-img");
+    const btnForumRemoveImg = document.getElementById("btn-forum-remove-img");
+    const forumImgName = document.getElementById("forum-img-name");
+
+    if (btnForumAttachImg && forumImageInput) {
+        btnForumAttachImg.addEventListener("click", () => forumImageInput.click());
+    }
+
+    if (forumImageInput) {
+        forumImageInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Por favor, selecciona un archivo de imagen válido.");
+                forumImageInput.value = "";
+                return;
+            }
+
+            if (file.size > 8 * 1024 * 1024) {
+                alert("La imagen no puede superar los 8MB.");
+                forumImageInput.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                currentForumAttachedImage = evt.target.result;
+                if (forumImgName) forumImgName.textContent = file.name;
+                if (btnForumRemoveImg) btnForumRemoveImg.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function clearForumImage() {
+        currentForumAttachedImage = null;
+        if (forumImageInput) forumImageInput.value = "";
+        if (forumImgName) forumImgName.textContent = "Sin archivo seleccionado";
+        if (btnForumRemoveImg) btnForumRemoveImg.classList.add("hidden");
+    }
+
+    if (btnForumRemoveImg) {
+        btnForumRemoveImg.addEventListener("click", clearForumImage);
+    }
+
+    if (forumForm) {
+        forumForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert("Debes iniciar sesión para publicar un tema en el foro.");
+                return;
+            }
+
+            if (currentUser.isAnonymous) {
+                alert("Los usuarios invitados no pueden crear temas en el foro. Regístrate gratis para publicar tu consulta o noticia.");
+                return;
+            }
+
+            const titleEl = document.getElementById("forum-title");
+            const catEl = document.getElementById("forum-category");
+            const linkEl = document.getElementById("forum-link");
+            const contentEl = document.getElementById("forum-content");
+
+            const title = titleEl ? titleEl.value.trim() : "";
+            const category = catEl ? catEl.value : "General";
+            const link = linkEl ? linkEl.value.trim() : "";
+            const content = contentEl ? contentEl.value.trim() : "";
+
+            if (!title || !content) {
+                alert("Por favor completa el título y el mensaje del tema.");
+                return;
+            }
+
+            try {
+                const creatorName = currentUser.displayName || currentUser.email;
+
+                await addDoc(collection(db, "foro_temas"), {
+                    titulo: title,
+                    categoria: category,
+                    contenido: content,
+                    enlace: link || null,
+                    imagenUrl: currentForumAttachedImage || null,
+                    autor: creatorName,
+                    autorUid: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+
+                if (titleEl) titleEl.value = "";
+                if (linkEl) linkEl.value = "";
+                if (contentEl) contentEl.value = "";
+                clearForumImage();
+
+                alert("¡Tema publicado con éxito en el foro!");
+
+            } catch (err) {
+                console.error("Error al publicar en el foro:", err);
+                alert("Ocurrió un error al publicar el tema. Inténtalo de nuevo.");
+            }
+        });
+    }
+
+    // Category filter button listener
+    document.addEventListener("click", (e) => {
+        const catBtn = e.target.closest(".forum-cat-btn");
+        if (catBtn) {
+            e.preventDefault();
+            document.querySelectorAll(".forum-cat-btn").forEach(b => b.classList.remove("active"));
+            catBtn.classList.add("active");
+            currentForumCategoryFilter = catBtn.dataset.cat || "all";
+            loadForumTopicsRealtime();
+        }
+    });
+
+    loadForumTopicsRealtime();
+}
+
+function loadForumTopicsRealtime() {
+    if (!db) return;
+
+    if (forumUnsubscribe) forumUnsubscribe();
+
+    const forumLoading = document.getElementById("forum-loading-indicator");
+    const forumEmpty = document.getElementById("forum-empty-state");
+    const forumList = document.getElementById("forum-topics-list");
+    const forumCounter = document.getElementById("forum-counter");
+
+    if (forumLoading) forumLoading.style.display = "flex";
+    if (forumEmpty) forumEmpty.classList.add("hidden");
+
+    let q;
+    try {
+        q = query(collection(db, "foro_temas"), orderBy("timestamp", "desc"), limit(50));
+    } catch (e) {
+        q = collection(db, "foro_temas");
+    }
+
+    forumUnsubscribe = onSnapshot(q, (snapshot) => {
+        if (forumLoading) forumLoading.style.display = "none";
+        if (!forumList) return;
+
+        forumList.innerHTML = "";
+
+        let docs = snapshot.docs;
+
+        if (currentForumCategoryFilter !== "all") {
+            docs = docs.filter(d => d.data().categoria === currentForumCategoryFilter);
+        }
+
+        if (forumCounter) forumCounter.textContent = docs.length;
+
+        if (docs.length === 0) {
+            if (forumEmpty) forumEmpty.classList.remove("hidden");
+            return;
+        }
+
+        if (forumEmpty) forumEmpty.classList.add("hidden");
+
+        docs.forEach(docSnap => {
+            const data = docSnap.data();
+            const topicId = docSnap.id;
+            const cardEl = renderForumTopicCard(topicId, data);
+            forumList.appendChild(cardEl);
+        });
+    }, (err) => {
+        console.error("Error en realtime del foro:", err);
+        if (forumLoading) forumLoading.style.display = "none";
+        if (forumEmpty) forumEmpty.classList.remove("hidden");
+    });
+}
+
+function renderForumTopicCard(topicId, data) {
+    const card = document.createElement("article");
+    card.className = "forum-topic-card";
+
+    let formattedDate = "Reciente";
+    if (data.timestamp && data.timestamp.toDate) {
+        formattedDate = data.timestamp.toDate().toLocaleDateString('es-ES', {
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    const isOwner = currentUser && (currentUser.uid === data.autorUid);
+    const catClass = `cat-${data.categoria || 'General'}`;
+
+    let imgMarkup = "";
+    if (data.imagenUrl) {
+        imgMarkup = `<img src="${data.imagenUrl}" alt="Imagen del tema" class="forum-topic-img">`;
+    }
+
+    let linkMarkup = "";
+    if (data.enlace) {
+        linkMarkup = `<a href="${data.enlace}" target="_blank" rel="noopener" class="forum-topic-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver Enlace Adjunto</a>`;
+    }
+
+    let deleteBtnMarkup = "";
+    if (isOwner) {
+        deleteBtnMarkup = `<button class="btn-delete-record btn-delete-topic" data-topic-id="${topicId}" title="Eliminar tema"><i class="fa-solid fa-trash"></i></button>`;
+    }
+
+    card.innerHTML = `
+        <div class="forum-topic-header">
+            <span class="forum-cat-badge ${catClass}">${data.categoria || 'General'}</span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span style="font-size: 0.775rem; color: var(--text-secondary);"><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
+                ${deleteBtnMarkup}
+            </div>
+        </div>
+        <h3 class="forum-topic-title">${escapeHTML(data.titulo || '')}</h3>
+        <p class="forum-topic-body">${escapeHTML(data.contenido || '').replace(/\n/g, '<br>')}</p>
+        ${imgMarkup}
+        ${linkMarkup}
+        <div class="forum-topic-footer">
+            <span><i class="fa-solid fa-user-circle"></i> ${escapeHTML(data.autor || 'Anónimo')}</span>
+            <button class="btn-reply-comment btn-toggle-replies" data-topic-id="${topicId}">
+                <i class="fa-solid fa-comments"></i> Respuestas
+            </button>
+        </div>
+        <div id="forum-replies-${topicId}" class="forum-replies-container hidden">
+            <div class="replies-list" id="replies-list-${topicId}">
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">Cargando respuestas...</span>
+            </div>
+            <form class="reply-form forum-reply-form" data-topic-id="${topicId}">
+                <input type="text" class="reply-input forum-reply-input" placeholder="Escribe una respuesta..." required maxLength="1000">
+                <button type="submit" class="btn-send-reply">Responder</button>
+            </form>
+        </div>
+    `;
+
+    // Handle topic deletion
+    const delBtn = card.querySelector(".btn-delete-topic");
+    if (delBtn) {
+        delBtn.addEventListener("click", async () => {
+            if (confirm("¿Estás seguro de que deseas eliminar esta publicación del foro?")) {
+                try {
+                    await deleteDoc(doc(db, "foro_temas", topicId));
+                } catch (err) {
+                    console.error("Error eliminando tema del foro:", err);
+                    alert("No se pudo eliminar el tema.");
+                }
+            }
+        });
+    }
+
+    // Handle replies toggle
+    const toggleRepliesBtn = card.querySelector(".btn-toggle-replies");
+    const repliesContainer = card.querySelector(`#forum-replies-${topicId}`);
+    if (toggleRepliesBtn && repliesContainer) {
+        toggleRepliesBtn.addEventListener("click", () => {
+            const isHidden = repliesContainer.classList.contains("hidden");
+            if (isHidden) {
+                repliesContainer.classList.remove("hidden");
+                loadForumReplies(topicId);
+            } else {
+                repliesContainer.classList.add("hidden");
+            }
+        });
+    }
+
+    // Handle reply form submit
+    const replyForm = card.querySelector(`.forum-reply-form`);
+    if (replyForm) {
+        replyForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const replyInput = replyForm.querySelector(".forum-reply-input");
+            const text = replyInput ? replyInput.value.trim() : "";
+            if (!text) return;
+
+            if (!currentUser) {
+                alert("Debes iniciar sesión para responder.");
+                return;
+            }
+
+            if (currentUser.isAnonymous) {
+                alert("Los usuarios invitados no pueden responder. Regístrate gratis.");
+                return;
+            }
+
+            try {
+                const creatorName = currentUser.displayName || currentUser.email;
+                await addDoc(collection(db, "foro_respuestas"), {
+                    topicId: topicId,
+                    texto: text,
+                    autor: creatorName,
+                    autorUid: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+
+                if (replyInput) replyInput.value = "";
+            } catch (err) {
+                console.error("Error enviando respuesta:", err);
+                alert("No se pudo enviar la respuesta.");
+            }
+        });
+    }
+
+    return card;
+}
+
+function loadForumReplies(topicId) {
+    const listEl = document.getElementById(`replies-list-${topicId}`);
+    if (!listEl) return;
+
+    let q;
+    try {
+        q = query(collection(db, "foro_respuestas"), where("topicId", "==", topicId), orderBy("timestamp", "asc"));
+    } catch (e) {
+        q = query(collection(db, "foro_respuestas"), where("topicId", "==", topicId));
+    }
+
+    onSnapshot(q, (snapshot) => {
+        listEl.innerHTML = "";
+        if (snapshot.empty) {
+            listEl.innerHTML = `<span style="font-size: 0.775rem; color: var(--text-secondary);">Aún no hay respuestas. ¡Sé el primero en responder!</span>`;
+            return;
+        }
+
+        snapshot.docs.forEach(docSnap => {
+            const rData = docSnap.data();
+            const rId = docSnap.id;
+
+            let formattedDate = "Reciente";
+            if (rData.timestamp && rData.timestamp.toDate) {
+                formattedDate = rData.timestamp.toDate().toLocaleDateString('es-ES', {
+                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            const isOwner = currentUser && (currentUser.uid === rData.autorUid);
+            let delBtn = "";
+            if (isOwner) {
+                delBtn = `<button class="btn-delete-record btn-delete-reply" data-reply-id="${rId}" title="Eliminar respuesta" style="padding: 0 0.2rem;"><i class="fa-solid fa-xmark"></i></button>`;
+            }
+
+            const rDiv = document.createElement("div");
+            rDiv.className = "comment-item";
+            rDiv.innerHTML = `
+                <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="comment-author"><i class="fa-regular fa-user"></i> ${escapeHTML(rData.autor || 'Anónimo')}</span>
+                    <div style="display: flex; gap: 0.4rem; align-items: center;">
+                        <span class="comment-time">${formattedDate}</span>
+                        ${delBtn}
+                    </div>
+                </div>
+                <div class="comment-text">${escapeHTML(rData.texto || '').replace(/\n/g, '<br>')}</div>
+            `;
+
+            const replyDelBtn = rDiv.querySelector(".btn-delete-reply");
+            if (replyDelBtn) {
+                replyDelBtn.addEventListener("click", async () => {
+                    if (confirm("¿Eliminar esta respuesta?")) {
+                        try {
+                            await deleteDoc(doc(db, "foro_respuestas", rId));
+                        } catch (e) {
+                            console.error("Error eliminando respuesta:", e);
+                            alert("No se pudo eliminar la respuesta.");
+                        }
+                    }
+                });
+            }
+
+            listEl.appendChild(rDiv);
+        });
+    });
 }
