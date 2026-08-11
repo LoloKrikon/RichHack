@@ -1687,11 +1687,57 @@ async function translateAllNews(targetLang) {
         } else {
             throw new Error("Respuesta no válida del servicio de traducción.");
         }
-
     } catch (err) {
         console.error("Error en traducción por lote:", err);
         if (firstTitleEl) firstTitleEl.innerHTML = prevFirstTitle;
-        alert(`Ocurrió un error al traducir noticias al idioma seleccionado. Inténtalo nuevamente.`);
+    }
+}
+
+function generateNewsId(urlOrGuid) {
+    let hash = 0;
+    const str = urlOrGuid || "";
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0;
+    }
+    return "news_" + Math.abs(hash);
+}
+
+async function loadCyberNews() {
+    if (newsLoaded) return;
+    if (newsLoading) newsLoading.style.display = "flex";
+    if (newsError) newsError.classList.add("hidden");
+    if (newsFeed) {
+        newsFeed.classList.add("hidden");
+        newsFeed.innerHTML = "";
+    }
+
+    try {
+        const feedUrl = "https://feeds.feedburner.com/TheHackersNews";
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+        const data = await res.json();
+
+        if (data.status !== "ok" || !data.items || data.items.length === 0) {
+            throw new Error("No se pudieron cargar las noticias.");
+        }
+
+        if (newsLoading) newsLoading.style.display = "none";
+        if (newsFeed) newsFeed.classList.remove("hidden");
+
+        data.items.forEach(item => {
+            renderNewsCard(item);
+        });
+
+        newsLoaded = true;
+
+        if (currentSiteLang && currentSiteLang !== "es") {
+            translateAllNews(currentSiteLang);
+        }
+    } catch (err) {
+        console.error("Error cargando noticias:", err);
+        if (newsLoading) newsLoading.style.display = "none";
+        if (newsError) newsError.classList.remove("hidden");
     }
 }
 
